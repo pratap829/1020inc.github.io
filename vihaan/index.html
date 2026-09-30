@@ -487,9 +487,17 @@ const apiUrl=window.VIHAAN_CONFIG?.apiUrl?.trim()||'';
 try{
   if(apiUrl){
     generateBtn.textContent='Consulting VIHAAN model…';
-    const response=await fetch(apiUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...v,platform:$('platform').value,userConfirmation:document.querySelector('input[name="approachConfirm"]:checked')?.value||'accept'})});
+    let accessCode=sessionStorage.getItem('vihaanAccessCode')||'';
+    if(!accessCode){
+      accessCode=window.prompt('Enter the VIHAAN prototype access code. This is not your OpenAI API key.')||'';
+      if(!accessCode.trim())throw new Error('VIHAAN access code is required to use the model endpoint.');
+      sessionStorage.setItem('vihaanAccessCode',accessCode.trim());
+      accessCode=accessCode.trim();
+    }
+    const response=await fetch(apiUrl,{method:'POST',headers:{'Content-Type':'application/json','X-VIHAAN-ACCESS-CODE':accessCode},body:JSON.stringify({...v,platform:$('platform').value,userConfirmation:document.querySelector('input[name="approachConfirm"]:checked')?.value||'accept'})});
     let payload={};
     try{payload=await response.json()}catch{}
+    if(response.status===401){sessionStorage.removeItem('vihaanAccessCode');throw new Error('Access code rejected. Generate again and enter the correct VIHAAN access code.');}
     if(!response.ok)throw new Error(payload.error||'The proposal service could not complete the request.');
     if(!payload.proposal||typeof payload.proposal.summary!=='string')throw new Error('The proposal service returned an incomplete response.');
     Object.assign(v,payload.proposal);
