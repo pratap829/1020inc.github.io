@@ -69,6 +69,9 @@ function rateLimited(request) {
 }
 
 function sanitizeInput(input) {
+  if (!input || typeof input !== "object" || Array.isArray(input)) {
+    throw new Error("Request body must be a JSON object.");
+  }
   const clean = {};
   for (const field of ALLOWED_FIELDS) {
     const value = input[field];
