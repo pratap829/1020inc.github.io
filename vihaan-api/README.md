@@ -16,6 +16,7 @@ From this folder:
 npm install --global wrangler
 wrangler login
 wrangler secret put OPENAI_API_KEY
+wrangler secret put VIHAAN_ACCESS_CODE
 ```
 
 Paste the key only into the Wrangler secret prompt. Do not place it in source files, frontend config, chat messages, screenshots, or GitHub.
@@ -24,6 +25,7 @@ For local-only testing, create a local `.dev.vars` file containing:
 
 ```
 OPENAI_API_KEY=your-key-here
+VIHAAN_ACCESS_CODE=replace-with-a-long-random-prototype-access-code
 OPENAI_MODEL=gpt-4.1-mini
 ALLOWED_ORIGINS=http://127.0.0.1:5500,http://localhost:5500
 ```
@@ -50,8 +52,8 @@ Configure `OPENAI_API_KEY` as a Worker secret before use. Update `ALLOWED_ORIGIN
 
 ## Security notes
 
-- The OpenAI key is read only from Worker secrets.
+- The OpenAI key and shared prototype access code are read only from Worker secrets. The browser prompts for the prototype access code and keeps it in session storage for the current tab session; this is not the OpenAI API key.
 - Request body and field lengths are capped; the output schema is checked; provider errors are not exposed to the browser; responses are not cached.
-- The in-memory limiter is best-effort per Worker isolate, not a production-grade global limit. Before public exposure, configure Cloudflare edge rate limiting and an access-control mechanism (for example Cloudflare Access or authenticated sessions). CORS is not authentication.
+- A server-side shared access code gates model calls for private prototype testing; rotate it if exposed. This is not a full user identity system. The in-memory limiter is best-effort per Worker isolate, not a production-grade global limit. Before public exposure, configure Cloudflare edge rate limiting and a stronger access-control mechanism (for example Cloudflare Access or authenticated sessions). CORS is not authentication.
 - Do not send customer PII, secrets, or live production records in the prototype.
 - This is a prototype integration, not a production security certification. Review privacy, logging, budget alerts, usage limits, and access controls before external users can reach the endpoint.
