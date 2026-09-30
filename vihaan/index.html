@@ -197,6 +197,19 @@ input:focus,select:focus,textarea:focus{
 }
 
 
+/* Guided, assumption-aware discovery: users confirm business intent, not technical internals */
+.discovery-heading{font-size:17px;line-height:1.4;margin:8px 0;color:#20283b}
+.discovery-copy{font-size:12px;line-height:1.7;color:#536176;margin:0 0 16px}
+.recommendation-list{display:grid;gap:10px;margin:16px 0}
+.recommendation-item{display:flex;gap:11px;padding:13px;border:1px solid #dfe4ef;border-radius:10px;background:#fff}
+.recommendation-number{display:flex;align-items:center;justify-content:center;flex:0 0 28px;height:28px;border-radius:8px;background:#f0ebff;color:#4e2fb3;font-size:11px;font-weight:700}
+.recommendation-item b{font-size:12px;color:#263247}
+.recommendation-item p{font-size:11px;line-height:1.65;color:#536176;margin:5px 0 0}
+.recommendation-confirm{border:1px solid #c9b9f5;border-radius:10px;background:#f8f6ff;padding:14px;margin:16px 0}
+.recommendation-confirm>b{font-size:12px;color:#263247}
+.recommendation-confirm>p{font-size:11px;line-height:1.6;color:#536176}
+.choice-row{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:#334155;margin-top:11px;line-height:1.5}
+.choice-row input{margin-top:2px;accent-color:#6540d8}
 /* Confirmation-first interaction: VIHAAN does the interpretation, user confirms */
 .field-hint{font-size:11px;line-height:1.6;color:var(--muted);margin:7px 0 0}
 .optional{font-size:10px;font-weight:500;color:var(--muted);margin-left:5px}
@@ -275,17 +288,26 @@ input:focus,select:focus,textarea:focus{
 <p class="field-hint">This is an initial, rule-assisted interpretation. You can correct it before continuing.</p>
 </div>
 <div class="discovery-step hidden" data-step="2">
-<div class="field"><label for="actors">Which systems and people are involved?</label><input id="actors" placeholder="Commerce platform, customer profile, journey orchestration, channel delivery"></div>
-<div class="field"><label for="trigger">What signals cart abandonment and completed purchase?</label><textarea id="trigger" placeholder="Cart activity / inactivity signal; authoritative purchase-completed event; timing if known."></textarea></div>
-<div class="field"><label for="data">What customer, cart and permission data is available?</label><textarea id="data" placeholder="Cart contents, customer identity, consent, stock/price state, prior purchase, channel eligibility."></textarea></div>
+<div class="scenario-label">VIHAAN'S PROPOSED STARTING POINT</div>
+<h3 class="discovery-heading">You don't need to know the technical details.</h3>
+<p class="discovery-copy">Based on the business challenge, VIHAAN will consider the following design questions and mark them for verification. These are proposed patterns, not confirmed facts about your systems.</p>
+<div class="recommendation-list">
+<div class="recommendation-item"><span class="recommendation-number">01</span><div><b>Detect a potentially abandoned cart</b><p>Use an available cart activity signal and an approved inactivity rule. The actual event and timing must be confirmed with the commerce team.</p></div></div>
+<div class="recommendation-item"><span class="recommendation-number">02</span><div><b>Check for a completed purchase before contact</b><p>Use an authoritative purchase signal where available. The freshness and reliability of that signal must be verified.</p></div></div>
+<div class="recommendation-item"><span class="recommendation-number">03</span><div><b>Respect identity, consent and contact rules</b><p>Confirm the customer can be identified and contacted through an eligible channel; suppress contact when required data or permission is missing.</p></div></div>
+<div class="recommendation-item"><span class="recommendation-number">04</span><div><b>Measure outcomes and guardrails</b><p>Track recovery outcomes alongside opt-outs, duplicate contacts and other agreed safeguards.</p></div></div>
+</div>
+<div class="recommendation-confirm"><b>Does this proposed approach look reasonable as a starting point?</b><p>You can proceed without knowing how your systems implement these controls.</p><label class="choice-row"><input type="radio" name="approachConfirm" value="accept" checked> Yes, use it as a draft for review</label><label class="choice-row"><input type="radio" name="approachConfirm" value="review"> I want to add context before proceeding</label></div>
+<div class="field hidden" id="extraContextWrap"><label for="extraContext">Anything VIHAAN should take into account? <span class="optional">Optional</span></label><textarea id="extraContext" placeholder="Share only what you know. You can also leave this blank."></textarea></div>
 </div>
 <div class="discovery-step hidden" data-step="3">
-<div class="field"><label for="timing">What delay or contact timing should be considered?</label><input id="timing" placeholder="Unknown is fine; e.g. proposed 30-minute delay, subject to business approval."></div>
-<div class="field"><label for="channels">Which communication channels are in scope?</label><input id="channels" placeholder="Email, push, SMS, or not yet decided"></div>
-<div class="field"><label for="volume">Expected volume / operational timing</label><input id="volume" placeholder="Unknown is fine; approximate carts/day and required response timing."></div>
-<div class="field"><label for="measurement">How will success be measured?</label><input id="measurement" placeholder="e.g. incremental purchase conversion, revenue, opt-outs, contact pressure"></div>
-<div class="field"><label for="constraints">Known constraints or guardrails</label><textarea id="constraints" placeholder="Consent, suppression, frequency caps, inventory freshness, privacy, cost, integration limits."></textarea></div>
-<div class="field"><label for="platform">Initial platform mapping</label><select id="platform"><option value="adobe">Adobe Experience Cloud (indicative)</option><option value="conceptual">Conceptual / platform-neutral</option></select></div>
+<h3 class="discovery-heading">A few business preferences</h3>
+<p class="discovery-copy">Choose what you know, or leave the recommended option selected. VIHAAN will identify technical details that still need validation.</p>
+<div class="field"><label for="timing">When should recovery contact be considered?</label><select id="timing"><option value="VIHAAN to propose timing; validate against customer behavior and business policy">Recommend a starting point</option><option value="Business prefers faster follow-up; exact delay to be validated">As soon as reasonably appropriate</option><option value="Business prefers a later follow-up; exact delay to be validated">After a longer pause</option><option value="Business timing preference not yet decided">Not sure yet</option></select></div>
+<div class="field"><label for="channels">Which channels should the proposal consider?</label><select id="channels"><option value="VIHAAN to recommend an eligible channel based on consent, available data and business fit">Recommend suitable channels</option><option value="Email is the preferred initial channel; permission and availability must be verified">Email first</option><option value="Push notification is a candidate channel; permission and availability must be verified">Push notification</option><option value="SMS is a candidate channel; permission, consent and cost must be verified">SMS</option><option value="Channel strategy not yet decided">Not sure yet</option></select></div>
+<div class="field"><label for="measurement">What matters most to the business?</label><select id="measurement"><option value="VIHAAN to propose recovery conversion and revenue measures plus customer-protection guardrails">Recovery results and customer experience</option><option value="Prioritize incremental recovered purchases and revenue; baseline and attribution require confirmation">Recovered purchases and revenue</option><option value="Prioritize customer experience, contact pressure and opt-out safeguards">Customer experience and contact quality</option><option value="Business success measures not yet decided">Not sure yet</option></select></div>
+<input type="hidden" id="actors"><input type="hidden" id="trigger"><input type="hidden" id="data"><input type="hidden" id="volume"><input type="hidden" id="constraints">
+<div class="field"><label for="platform">Architecture platform focus</label><select id="platform"><option value="adobe">Adobe Experience Cloud (indicative)</option><option value="conceptual">Conceptual / platform-neutral</option></select><p class="field-hint">This chooses the proposal lens, not a claim that any Adobe product or capability is already configured.</p></div>
 </div>
 <div class="step-actions"><button class="btn btn-secondary" id="prevStepBtn" type="button" disabled>← Back</button><span id="stepCount" class="step-count">Step 1 of 3</span><button class="btn btn-primary" id="nextStepBtn" type="button">Continue →</button><button class="btn btn-primary hidden" id="generateBtn" type="submit">Generate architecture proposal →</button><button class="btn btn-secondary" id="clearBtn" type="button">Start over</button></div><div id="validation" class="validation hidden" role="alert"></div>
 </form><div class="notice">This MVP uses transparent rule-assisted templates, not a live AI model. Proposals are drafts; verify assumptions, product capabilities and design decisions before implementation.</div>
@@ -321,17 +343,28 @@ $('nextStepBtn').addEventListener('click',()=>{
   if(discoveryStep===1){
     if(!$('problem').value.trim()){$('validation').textContent='Tell VIHAAN a little about the business challenge first.';$('validation').classList.remove('hidden');$('problem').focus();return;}
     const problem=$('problem').value.trim();
-    const context=$('industry').value.trim()||'Business context not yet confirmed';
     const outcome=$('outcome').value.trim()||'Recover eligible abandoned carts while respecting purchase status, customer permissions and contact rules.';
     $('understandingProblem').textContent=problem;
     $('understandingObjective').textContent=outcome;
-    $('understandingApproach').textContent='Explore cart and purchase signals, confirm customer identity and communication permissions, then propose a recovery journey with suppression checks and measurable outcomes.';
+    $('understandingApproach').textContent='Develop a draft recovery approach, identify the system facts that need verification, and propose safeguards before communication.';
     $('understandingCard').classList.remove('hidden');
     $('nextStepBtn').classList.add('hidden');
     $('stepCount').textContent='Review your understanding';
     $('validation').classList.add('hidden');
     $('understandingCard').scrollIntoView({behavior:'smooth',block:'nearest'});
     return;
+  }
+  if(discoveryStep===2){
+    const choice=document.querySelector('input[name="approachConfirm"]:checked')?.value||'accept';
+    if(choice==='review' && !$('extraContext').value.trim()){
+      $('validation').textContent='You can add a note, or choose “Yes, use it as a draft for review” to continue without extra details.';
+      $('validation').classList.remove('hidden');
+      $('extraContext').focus();
+      return;
+    }
+    if(choice==='review' && $('extraContext').value.trim()){
+      $('constraints').value += '; Additional user context: '+$('extraContext').value.trim();
+    }
   }
   showDiscoveryStep(discoveryStep+1);
 });
@@ -340,8 +373,18 @@ $('confirmUnderstandingBtn').addEventListener('click',()=>{
   $('nextStepBtn').classList.remove('hidden');
   $('industry').value=$('industry').value.trim()||'Retail / Digital Commerce';
   $('outcome').value=$('outcome').value.trim()||'Recover eligible abandoned carts while respecting purchase status, customer permissions and contact rules.';
+  $('actors').value='Commerce platform, customer identity/profile, journey orchestration and eligible channel delivery — candidate components to validate';
+  $('trigger').value='Proposed: cart activity/inactivity signal plus authoritative purchase-completed check; actual events and timing unknown until client validation';
+  $('data').value='Candidate context: cart contents, identity, consent/permissions, purchase state, channel eligibility and product price/availability where relevant; availability unknown';
+  $('volume').value='Unknown — request client volume and operational requirements during implementation discovery';
+  $('constraints').value='Proposed safeguards: consent, purchase suppression, duplicate-event handling, frequency/contact limits, data freshness and observability; confirm client policy';
+  $('extraContextWrap').classList.add('hidden');
   showDiscoveryStep(2);
 });
+document.querySelectorAll('input[name="approachConfirm"]').forEach(el=>el.addEventListener('change',()=>{
+  $('extraContextWrap').classList.toggle('hidden',document.querySelector('input[name="approachConfirm"]:checked').value!=='review');
+}));
+
 $('editUnderstandingBtn').addEventListener('click',()=>{
   $('understandingCard').classList.add('hidden');
   $('nextStepBtn').classList.remove('hidden');
@@ -350,7 +393,7 @@ $('editUnderstandingBtn').addEventListener('click',()=>{
 });
 $('prevStepBtn').addEventListener('click',()=>showDiscoveryStep(discoveryStep-1));
 showDiscoveryStep(1);
-$('clearBtn').addEventListener('click',()=>{$('intakeForm').reset();current=null;$('understandingCard').classList.add('hidden');$('nextStepBtn').classList.remove('hidden');showDiscoveryStep(1);$('result').classList.add('hidden');$('emptyState').classList.remove('hidden');$('validation').classList.add('hidden')});
+$('clearBtn').addEventListener('click',()=>{$('intakeForm').reset();current=null;$('understandingCard').classList.add('hidden');$('extraContextWrap').classList.add('hidden');$('nextStepBtn').classList.remove('hidden');showDiscoveryStep(1);$('result').classList.add('hidden');$('emptyState').classList.remove('hidden');$('validation').classList.add('hidden')});
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const bullets=(a,r=false)=>'<div class="list">'+a.map(x=>'<div class="list-item '+(r?'risk':'')+'"><span class="bullet"></span><span>'+esc(x)+'</span></div>').join('')+'</div>';
 function render(d){
