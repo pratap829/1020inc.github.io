@@ -197,6 +197,18 @@ input:focus,select:focus,textarea:focus{
 }
 
 
+/* Confirmation-first interaction: VIHAAN does the interpretation, user confirms */
+.field-hint{font-size:11px;line-height:1.6;color:var(--muted);margin:7px 0 0}
+.optional{font-size:10px;font-weight:500;color:var(--muted);margin-left:5px}
+.understanding-card{border:1px solid #c9b9f5;border-radius:12px;padding:18px;background:linear-gradient(135deg,#f7f4ff,#fff);margin:18px 0}
+.understanding-card h3{font-size:17px;margin:8px 0 12px;color:#20283b}
+.understanding-card>p{font-size:12px;line-height:1.7;color:#46536a}
+.understanding-proposal{border:1px solid #e0e4ef;background:#fff;border-radius:9px;padding:12px;margin:10px 0}
+.understanding-proposal b{font-size:11px;color:#4e2fb3}
+.understanding-proposal p{font-size:12px;line-height:1.65;color:#334155;margin:5px 0 0}
+.understanding-question{font-weight:600;margin:16px 0 10px!important;color:#20283b!important}
+.understanding-actions{display:flex;gap:8px;flex-wrap:wrap}
+.understanding-actions .btn-primary{margin-left:0}
 /* Progressive discovery for the Cart Abandonment Recovery demo */
 .cart-scope-card{border:1px solid #d7cdf7;border-radius:11px;background:linear-gradient(120deg,#f4f0ff,#fff);padding:16px 18px;margin-bottom:20px}
 .cart-scope-card strong{display:block;color:#20283b;font-size:16px;margin:4px 0 6px}
@@ -249,8 +261,18 @@ input:focus,select:focus,textarea:focus{
 <form id="intakeForm">
 <div class="discovery-progress" aria-label="Discovery progress"><span class="discovery-step-indicator active" data-indicator="1">1 <b>Business</b></span><span class="discovery-connector"></span><span class="discovery-step-indicator" data-indicator="2">2 <b>Cart &amp; data</b></span><span class="discovery-connector"></span><span class="discovery-step-indicator" data-indicator="3">3 <b>Rules &amp; success</b></span></div>
 <div class="discovery-step" data-step="1">
-<div class="field"><label for="problem">What business problem are we solving? <span class="required">Required</span></label><textarea id="problem" required placeholder="Example: shoppers add products to their cart but leave before completing a purchase."></textarea></div>
-<div class="two-col"><div class="field"><label for="industry">Business / market context <span class="required">Required</span></label><input id="industry" required value="Retail / Digital Commerce" placeholder="e.g. Retail / Digital Commerce"></div><div class="field"><label for="outcome">Desired business outcome <span class="required">Required</span></label><input id="outcome" required placeholder="e.g. improve eligible cart recovery"></div></div>
+<div class="field"><label for="problem">Tell VIHAAN what you want to improve <span class="required">Start here</span></label><textarea id="problem" required placeholder="Describe the business challenge in your own words. No technical details needed."></textarea><p class="field-hint">Just explain the problem. VIHAAN will organize the context and suggest the next steps.</p></div>
+<div class="two-col"><div class="field"><label for="industry">Business context</label><input id="industry" value="Retail / Digital Commerce" placeholder="Retail / Digital Commerce"></div><div class="field"><label for="outcome">Desired outcome <span class="optional">Optional</span></label><input id="outcome" placeholder="VIHAAN can suggest one for you"></div></div>
+</div>
+<div id="understandingCard" class="understanding-card hidden" aria-live="polite">
+<span class="scenario-label">VIHAAN'S INITIAL UNDERSTANDING</span>
+<h3>Here is how I understand your challenge</h3>
+<p id="understandingProblem"></p>
+<div class="understanding-proposal"><b>Likely business objective</b><p id="understandingObjective"></p></div>
+<div class="understanding-proposal"><b>Proposed direction</b><p id="understandingApproach"></p></div>
+<p class="understanding-question">Does this reflect what you are trying to achieve?</p>
+<div class="understanding-actions"><button class="btn btn-primary" id="confirmUnderstandingBtn" type="button">Yes, that's right →</button><button class="btn btn-secondary" id="editUnderstandingBtn" type="button">Let me clarify</button></div>
+<p class="field-hint">This is an initial, rule-assisted interpretation. You can correct it before continuing.</p>
 </div>
 <div class="discovery-step hidden" data-step="2">
 <div class="field"><label for="actors">Which systems and people are involved?</label><input id="actors" placeholder="Commerce platform, customer profile, journey orchestration, channel delivery"></div>
@@ -297,14 +319,38 @@ function showDiscoveryStep(step){
 }
 $('nextStepBtn').addEventListener('click',()=>{
   if(discoveryStep===1){
-    const missing=['problem','industry','outcome'].filter(id=>!$(id).value.trim());
-    if(missing.length){$('validation').textContent='Please enter the business problem, business context and desired outcome to continue.';$('validation').classList.remove('hidden');$(missing[0]).focus();return;}
+    if(!$('problem').value.trim()){$('validation').textContent='Tell VIHAAN a little about the business challenge first.';$('validation').classList.remove('hidden');$('problem').focus();return;}
+    const problem=$('problem').value.trim();
+    const context=$('industry').value.trim()||'Business context not yet confirmed';
+    const outcome=$('outcome').value.trim()||'Recover eligible abandoned carts while respecting purchase status, customer permissions and contact rules.';
+    $('understandingProblem').textContent=problem;
+    $('understandingObjective').textContent=outcome;
+    $('understandingApproach').textContent='Explore cart and purchase signals, confirm customer identity and communication permissions, then propose a recovery journey with suppression checks and measurable outcomes.';
+    $('understandingCard').classList.remove('hidden');
+    $('nextStepBtn').classList.add('hidden');
+    $('stepCount').textContent='Review your understanding';
+    $('validation').classList.add('hidden');
+    $('understandingCard').scrollIntoView({behavior:'smooth',block:'nearest'});
+    return;
   }
   showDiscoveryStep(discoveryStep+1);
 });
+$('confirmUnderstandingBtn').addEventListener('click',()=>{
+  $('understandingCard').classList.add('hidden');
+  $('nextStepBtn').classList.remove('hidden');
+  $('industry').value=$('industry').value.trim()||'Retail / Digital Commerce';
+  $('outcome').value=$('outcome').value.trim()||'Recover eligible abandoned carts while respecting purchase status, customer permissions and contact rules.';
+  showDiscoveryStep(2);
+});
+$('editUnderstandingBtn').addEventListener('click',()=>{
+  $('understandingCard').classList.add('hidden');
+  $('nextStepBtn').classList.remove('hidden');
+  $('stepCount').textContent='Step 1 of 3';
+  $('problem').focus();
+});
 $('prevStepBtn').addEventListener('click',()=>showDiscoveryStep(discoveryStep-1));
 showDiscoveryStep(1);
-$('clearBtn').addEventListener('click',()=>{$('intakeForm').reset();current=null;showDiscoveryStep(1);$('result').classList.add('hidden');$('emptyState').classList.remove('hidden');$('validation').classList.add('hidden')});
+$('clearBtn').addEventListener('click',()=>{$('intakeForm').reset();current=null;$('understandingCard').classList.add('hidden');$('nextStepBtn').classList.remove('hidden');showDiscoveryStep(1);$('result').classList.add('hidden');$('emptyState').classList.remove('hidden');$('validation').classList.add('hidden')});
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const bullets=(a,r=false)=>'<div class="list">'+a.map(x=>'<div class="list-item '+(r?'risk':'')+'"><span class="bullet"></span><span>'+esc(x)+'</span></div>').join('')+'</div>';
 function render(d){
