@@ -296,6 +296,25 @@ input:focus,select:focus,textarea:focus{
 .framework-overview-foot{grid-column:1/-1;margin:0;color:#4e35a4;font-size:12px;line-height:1.65}
 @media(max-width:700px){.framework-intro,.framework-overview{grid-template-columns:1fr}.framework-overview-foot{grid-column:auto}.framework-explainer{padding:16px}}
 
+@media print{
+@page{size:A4;margin:14mm}
+body{background:#fff!important;color:#172033!important;font-size:10pt}
+.site-header,.hero,.intake-section,.footer,.tabs,.proposal-actions,.validation,.toast{display:none!important}
+#result{display:block!important;border:0!important;box-shadow:none!important;margin:0!important;padding:0!important;max-width:none!important}
+#result .result-top{padding:0 0 12px!important;border-bottom:1px solid #cbd5e1!important;margin-bottom:14px!important}
+#result .result-section,#result .result-section.hidden{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;overflow:visible!important;margin:0 0 18px!important;padding:0!important;break-inside:auto}
+#result .result-section h3{break-after:avoid-page;color:#252044!important}
+#result .arch-node,#result .runtime-map-item,#result .plane-layer,#result .plane-domain,#result .diagram-guardrail,#result .trace-table-wrap,#result table,#result .seq-item{break-inside:avoid-page}
+#result .runtime-map{overflow:visible!important;flex-wrap:wrap!important}
+#result .runtime-map-item{flex:1 1 22%!important;min-width:0!important}
+#result .runtime-map-arrow{display:none!important}
+#result .trace-table-wrap{overflow:visible!important}
+#result table{width:100%!important;font-size:8pt!important}
+#result th,#result td{padding:5px!important;overflow-wrap:anywhere}
+#result .summary,#result p,#result li{color:#273449!important}
+#result .draft-badge{border:1px solid #a78bfa!important}
+a{color:#172033!important;text-decoration:none!important}
+}
 </style>
 </head>
 <body>
@@ -349,7 +368,7 @@ input:focus,select:focus,textarea:focus{
 <section class="panel workspace"><div id="emptyState" class="empty"><div class="empty-orbit"><span></span></div><h3>Your proposal workspace</h3><p>Work through the three discovery stages. Your proposal will appear here with an architecture view, runtime sequence, framework traceability, platform mapping, and explicit risks and decisions.</p></div>
 <div id="result" class="result hidden"><div class="result-top"><div><h2 id="resultTitle">Proposed architecture</h2><p id="resultSubtitle"></p></div><span class="draft-badge">Draft · Validate before use</span></div><div class="tabs"><button class="tab active" data-tab="overview">Overview</button><button class="tab" data-tab="architecture">Architecture</button><button class="tab" data-tab="frameworks">Framework traceability</button><button class="tab" data-tab="runtime">Runtime sequence</button><button class="tab" data-tab="controls">ERERA controls</button><button class="tab" data-tab="mapping">Platform mapping</button><button class="tab" data-tab="validation">Risks & next steps</button></div>
 <div id="tab-overview" class="result-section"></div><div id="tab-architecture" class="result-section hidden"></div><div id="tab-frameworks" class="result-section hidden"></div><div id="tab-runtime" class="result-section hidden"></div><div id="tab-controls" class="result-section hidden"></div><div id="tab-mapping" class="result-section hidden"></div><div id="tab-validation" class="result-section hidden"></div>
-<div class="actions" style="margin-top:24px"><button id="exportBtn" class="btn btn-secondary" type="button">Export proposal JSON</button><button id="copyBtn" class="btn btn-secondary" type="button">Copy executive summary</button></div>
+<div class="actions proposal-actions" style="margin-top:24px"><button id="printBtn" class="btn btn-primary" type="button">Print / Save proposal as PDF</button><button id="exportBtn" class="btn btn-secondary" type="button">Export proposal JSON</button><button id="copyBtn" class="btn btn-secondary" type="button">Copy executive summary</button></div>
 </div></section>
 </div><div class="footer">VIHAAN · VERIFIED INTELLIGENCE FOR HOLISTIC ARCHITECTURE, ASSURANCE &amp; NAVIGATION<br>1020 INC. · THINK BEYOND THE OBVIOUS</div>
 </div>
@@ -461,6 +480,7 @@ document.querySelectorAll('.result-section').forEach(x=>x.classList.toggle('hidd
 $('result').scrollIntoView({behavior:'smooth',block:'start'});
 });
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.result-section').forEach(x=>x.classList.toggle('hidden',x.id!=='tab-'+b.dataset.tab))}));
+$('printBtn').addEventListener('click',()=>{if(!current)return;window.print()});
 $('exportBtn').addEventListener('click',()=>{if(!current)return;const u=URL.createObjectURL(new Blob([JSON.stringify(current,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=u;a.download='vihaan-architecture-proposal.json';a.click();URL.revokeObjectURL(u)});
 $('copyBtn').addEventListener('click',async()=>{if(!current)return;const text=current.title+'\n\n'+current.summary+'\n\nIndustry: '+current.industry+'\nDesired outcome: '+current.outcome+'\nTrigger: '+current.trigger+'\nConstraints: '+current.constraints;try{await navigator.clipboard.writeText(text);$('copyBtn').textContent='Summary copied ✓';setTimeout(()=>$('copyBtn').textContent='Copy executive summary',1800)}catch(e){window.prompt('Copy the executive summary:',text)}});
 })();
