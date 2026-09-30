@@ -356,12 +356,6 @@ $('nextStepBtn').addEventListener('click',()=>{
   }
   if(discoveryStep===2){
     const choice=document.querySelector('input[name="approachConfirm"]:checked')?.value||'accept';
-    if(choice==='review' && !$('extraContext').value.trim()){
-      $('validation').textContent='You can add a note, or choose “Yes, use it as a draft for review” to continue without extra details.';
-      $('validation').classList.remove('hidden');
-      $('extraContext').focus();
-      return;
-    }
     if(choice==='review' && $('extraContext').value.trim()){
       $('constraints').value += '; Additional user context: '+$('extraContext').value.trim();
     }
