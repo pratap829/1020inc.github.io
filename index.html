@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,6 +7,12 @@
   <meta name="theme-color" content="#090b13">
   <title>1020 Inc. — Something Is Taking Shape</title>
   <meta name="description" content="1020 Inc. is preparing its next chapter in enterprise intelligence, architecture and AI.">
+
+  <!-- Montserrat typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;650;700;800&display=swap" rel="stylesheet">
+
   <style>
     :root {
       color-scheme: dark;
@@ -16,9 +21,12 @@
       --muted: #a6a3b8;
       --violet: #a78bfa;
       --purple: #6d43df;
+      --font-sans: "Montserrat", sans-serif;
     }
 
     * { box-sizing: border-box; }
+
+    html { min-height: 100%; }
 
     body {
       margin: 0;
@@ -27,12 +35,15 @@
         radial-gradient(ellipse at 50% 38%, #34205d55 0%, transparent 48%),
         linear-gradient(145deg, #090b13, #11101f 60%, #090b13);
       color: var(--text);
-      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      font-family: var(--font-sans);
       display: flex;
       align-items: center;
       justify-content: center;
-      overflow: hidden;
+      overflow-x: hidden;
       padding: 32px 20px;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
     }
 
     body::before {
@@ -57,40 +68,33 @@
     }
 
     .brand {
-      display: inline-flex;
+      display: flex;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 64px;
-      font-size: 15px;
-      font-weight: 650;
-      letter-spacing: 0.28em;
+      justify-content: center;
+      margin: 0 auto 64px;
+      min-height: 42px;
     }
 
-    .mark {
-      width: 38px;
-      height: 38px;
-      display: grid;
-      place-items: center;
-      border: 1px solid #a78bfa80;
-      border-radius: 12px;
-      color: var(--violet);
-      font-size: 22px;
-      background: #a78bfa12;
-      box-shadow: 0 0 35px #8b5cf633;
+    .brand-logo {
+      display: block;
+      width: clamp(145px, 24vw, 190px);
+      height: auto;
+      object-fit: contain;
     }
 
     .eyebrow {
       color: var(--violet);
       text-transform: uppercase;
-      letter-spacing: 0.24em;
-      font-size: 11px;
+      letter-spacing: 0.22em;
+      font-size: clamp(10px, 1.6vw, 12px);
+      line-height: 1.7;
       font-weight: 700;
       margin-bottom: 26px;
     }
 
     h1 {
-      font-size: clamp(42px, 8vw, 76px);
-      line-height: 1.08;
+      font-size: clamp(39px, 8vw, 76px);
+      line-height: 1.12;
       letter-spacing: -0.055em;
       margin: 0 auto 24px;
       font-weight: 600;
@@ -106,10 +110,12 @@
 
     .intro {
       color: var(--muted);
-      font-size: clamp(15px, 2.2vw, 18px);
-      line-height: 1.85;
+      font-size: clamp(14px, 2.2vw, 18px);
+      line-height: 1.9;
+      font-weight: 400;
       max-width: 590px;
       margin: 0 auto;
+      text-wrap: pretty;
     }
 
     .visual {
@@ -161,18 +167,23 @@
     .status {
       display: inline-flex;
       align-items: center;
-      gap: 9px;
+      justify-content: center;
+      gap: 10px;
       border: 1px solid #a78bfa35;
       background: #a78bfa0c;
       color: #d8ccff;
-      padding: 11px 17px;
+      padding: 12px 19px;
       border-radius: 100px;
-      font-size: 11px;
-      letter-spacing: 0.12em;
+      font-size: 10px;
+      line-height: 1.6;
+      font-weight: 600;
+      letter-spacing: 0.13em;
       text-transform: uppercase;
+      max-width: 100%;
     }
 
     .dot {
+      flex: 0 0 7px;
       width: 7px;
       height: 7px;
       border-radius: 50%;
@@ -183,13 +194,23 @@
     footer {
       margin-top: 65px;
       color: #77758a;
-      font-size: 11px;
-      letter-spacing: 0.12em;
+      font-size: 10px;
+      line-height: 1.8;
+      font-weight: 600;
+      letter-spacing: 0.13em;
     }
 
     @media (max-width: 520px) {
+      body { padding: 24px 18px; }
+      main { padding: 28px 4px; }
       .brand { margin-bottom: 48px; }
-      footer { margin-top: 48px; }
+      .brand-logo { width: 150px; }
+      .eyebrow { letter-spacing: 0.17em; margin-bottom: 22px; }
+      h1 { letter-spacing: -0.045em; margin-bottom: 22px; }
+      .intro { line-height: 1.8; }
+      .visual { margin: 30px 0 34px; }
+      .status { font-size: 9px; letter-spacing: 0.09em; padding: 11px 14px; }
+      footer { margin-top: 48px; font-size: 9px; }
     }
 
     @media (prefers-reduced-motion: no-preference) {
@@ -203,9 +224,14 @@
 </head>
 <body>
   <main>
-    <div class="brand">
-      <div class="mark">Ø</div>
-      <span>1020 INC.</span>
+    <div class="brand" aria-label="1020 Inc.">
+      <img
+        class="brand-logo"
+        src="1020-Inc-White_Logo-Transparent.webp"
+        alt="1020 Inc."
+        width="2000"
+        height="676"
+      >
     </div>
 
     <div class="eyebrow">A New Chapter Is Taking Shape</div>
@@ -224,13 +250,11 @@
     </div>
 
     <div class="status">
-      <span class="dot"></span>
-      Our next chapter is under construction
+      <span class="dot" aria-hidden="true"></span>
+      <span>Our next chapter is under construction</span>
     </div>
 
-    <footer>
-      1020 INC. &nbsp;·&nbsp; THINK BEYOND THE OBVIOUS
-    </footer>
+    <footer>1020 INC. &nbsp;·&nbsp; THINK BEYOND THE OBVIOUS</footer>
   </main>
 </body>
 </html>
