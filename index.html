@@ -1,0 +1,236 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#090b13">
+  <title>1020 Inc. — Something Is Taking Shape</title>
+  <meta name="description" content="1020 Inc. is preparing its next chapter in enterprise intelligence, architecture and AI.">
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #090b13;
+      --text: #f4f1ff;
+      --muted: #a6a3b8;
+      --violet: #a78bfa;
+      --purple: #6d43df;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(ellipse at 50% 38%, #34205d55 0%, transparent 48%),
+        linear-gradient(145deg, #090b13, #11101f 60%, #090b13);
+      color: var(--text);
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 32px 20px;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(#ffffff08 1px, transparent 1px),
+        linear-gradient(90deg, #ffffff08 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: linear-gradient(to bottom, black, transparent 85%);
+    }
+
+    main {
+      width: 100%;
+      max-width: 850px;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+      padding: 36px 12px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 64px;
+      font-size: 15px;
+      font-weight: 650;
+      letter-spacing: 0.28em;
+    }
+
+    .mark {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border: 1px solid #a78bfa80;
+      border-radius: 12px;
+      color: var(--violet);
+      font-size: 22px;
+      background: #a78bfa12;
+      box-shadow: 0 0 35px #8b5cf633;
+    }
+
+    .eyebrow {
+      color: var(--violet);
+      text-transform: uppercase;
+      letter-spacing: 0.24em;
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 26px;
+    }
+
+    h1 {
+      font-size: clamp(42px, 8vw, 76px);
+      line-height: 1.08;
+      letter-spacing: -0.055em;
+      margin: 0 auto 24px;
+      font-weight: 600;
+      max-width: 780px;
+    }
+
+    h1 span {
+      background: linear-gradient(100deg, #ffffff, #c4b5fd 55%, #8b5cf6);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .intro {
+      color: var(--muted);
+      font-size: clamp(15px, 2.2vw, 18px);
+      line-height: 1.85;
+      max-width: 590px;
+      margin: 0 auto;
+    }
+
+    .visual {
+      height: 125px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 36px 0 38px;
+      position: relative;
+    }
+
+    .orbit {
+      width: 112px;
+      height: 112px;
+      border: 1px solid #a78bfa55;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      position: relative;
+      box-shadow: 0 0 65px #8b5cf61c;
+    }
+
+    .orbit::before,
+    .orbit::after {
+      content: "";
+      position: absolute;
+      border: 1px solid #a78bfa35;
+      border-radius: 50%;
+    }
+
+    .orbit::before {
+      inset: 12px -12px;
+      transform: rotate(35deg);
+    }
+
+    .orbit::after {
+      inset: -12px 12px;
+      transform: rotate(-35deg);
+    }
+
+    .core {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #c4b5fd;
+      box-shadow: 0 0 22px #a78bfa, 0 0 55px #8b5cf6;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      border: 1px solid #a78bfa35;
+      background: #a78bfa0c;
+      color: #d8ccff;
+      padding: 11px 17px;
+      border-radius: 100px;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #a78bfa;
+      box-shadow: 0 0 12px #a78bfa;
+    }
+
+    footer {
+      margin-top: 65px;
+      color: #77758a;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+    }
+
+    @media (max-width: 520px) {
+      .brand { margin-bottom: 48px; }
+      footer { margin-top: 48px; }
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .orbit { animation: breathe 7s ease-in-out infinite; }
+      @keyframes breathe {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.045); }
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="brand">
+      <div class="mark">Ø</div>
+      <span>1020 INC.</span>
+    </div>
+
+    <div class="eyebrow">A New Chapter Is Taking Shape</div>
+
+    <h1>We are building<br><span>what comes next.</span></h1>
+
+    <p class="intro">
+      Intelligence. Architecture. Transformation.<br>
+      We are preparing a new chapter at the intersection
+      of enterprise thinking and emerging technology.
+      Something meaningful takes time.
+    </p>
+
+    <div class="visual" aria-hidden="true">
+      <div class="orbit"><div class="core"></div></div>
+    </div>
+
+    <div class="status">
+      <span class="dot"></span>
+      Our next chapter is under construction
+    </div>
+
+    <footer>
+      1020 INC. &nbsp;·&nbsp; THINK BEYOND THE OBVIOUS
+    </footer>
+  </main>
+</body>
+</html>
