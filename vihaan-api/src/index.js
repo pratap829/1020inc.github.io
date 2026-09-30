@@ -34,7 +34,7 @@ function corsHeaders(origin, env) {
   return {
     "Access-Control-Allow-Origin": origin,
     "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Headers": "Content-Type, X-VIHAAN-ACCESS-CODE",
     "Vary": "Origin"
   };
 }
@@ -115,6 +115,13 @@ export default {
     }
     if (!headers["Access-Control-Allow-Origin"]) {
       return jsonResponse({ error: "Origin not allowed." }, 403, origin, env);
+    }
+    if (!env.VIHAAN_ACCESS_CODE) {
+      return jsonResponse({ error: "The server-side VIHAAN access code is not configured yet." }, 503, origin, env);
+    }
+    const suppliedAccessCode = request.headers.get("X-VIHAAN-ACCESS-CODE") || "";
+    if (suppliedAccessCode.length !== env.VIHAAN_ACCESS_CODE.length || suppliedAccessCode !== env.VIHAAN_ACCESS_CODE) {
+      return jsonResponse({ error: "VIHAAN access code is missing or invalid." }, 401, origin, env);
     }
     if (rateLimited(request)) {
       return jsonResponse({ error: "Request limit reached. Please wait a few minutes and try again." }, 429, origin, env);
