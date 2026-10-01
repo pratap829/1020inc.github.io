@@ -46,10 +46,12 @@ Return exactly one valid JSON object with these fields:
 String fields: summary, outcome, actors, trigger, data, timing, channels, volume, measurement, constraints.
 Structured fields:
 - nodes: exactly 7 arrays, each with exactly 3 strings: [canonical Blueprint layer name, one or more selected canonical component names from that layer's supplied components list, context-specific proposed responsibility]. Use every canonical Blueprint layer name exactly, in the exact supplied order. Do not invent component names or use generic labels as substitutes for canonical layers.
-- sequence: exactly 5 arrays, each with exactly 2 strings: [step title, step description]. Describe the actual proposed runtime sequence for this business problem.
+- sequence: exactly 5 arrays, each with exactly 2 strings: [step title, step description]. Describe the actual proposed runtime sequence. Across the five descriptions, explicitly name all seven canonical Blueprint layers and explain how the operational steps traverse them. Include the business decision point, human-review option where warranted, state transitions, successful completion, failure/timeout handling, and safe re-entry after a case update.
+- decisionPaths: exactly 4 arrays, each with exactly 3 strings: [condition or decision, proposed branch/action, resulting state or next step]. Include at least one normal route, one priority/SLA escalation, one human-review route, and one exception/re-entry route appropriate to the supplied context.
+- stateTransitions: exactly 5 arrays, each with exactly 3 strings: [current state, event/condition, next state]. Use the Blueprint state concepts Listening (Event Ready), Running (Executing), Waiting (Awaiting Timer), Running (Resumed), Completed (Success/End), and Archived (History) where relevant. Include failure/retry or re-entry where appropriate.
 - controls: exactly 7 strings, one for each ERERA domain in the supplied order. Each string must begin with the exact domain name followed by a colon and at least one exact three-letter component code from that domain's supplied component list (for example, "LAT — Latency Budget"), then a context-specific control proposal and any unknown to validate.
-- mapping: exactly 4 arrays, each with exactly 3 strings: [business capability, candidate platform or logical component, validation note]. Respect the requested platform focus; for platform-neutral requests, use logical capabilities rather than forcing Adobe products.
-Keep each string concise and specific to the supplied context. The nodes, sequence, controls, and mapping must be generated from the current business context, not copied from a fixed business template. Do not claim these structures represent verified client systems. The summary must explain the proposed flow and state that client-specific details require validation. Do not include cart, purchase, marketing, or customer-contact concepts unless relevant to the supplied scenario.`;
+- mapping: exactly 4 arrays, each with exactly 3 strings: [business capability, candidate platform or logical component, validation note]. Respect the requested platform focus; for Adobe focus, distinguish candidate Adobe capabilities, external systems of record/case-management capabilities, and custom engineering. Never imply Adobe provides a complete case-management engine unless validated. For platform-neutral requests, use logical capabilities rather than forcing Adobe products.
+Keep each string concise and specific to the supplied context. The nodes, sequence, controls, and mapping must be generated from the current business context, not copied from a fixed business template. Do not claim these structures represent verified client systems. The summary must explain the proposed flow and state that client-specific details require validation. For customer-service case prioritization and similar operational workflows, make priority bands, SLA thresholds, routing ownership, escalation rules, human review, exception handling and case-update re-entry explicit as proposed patterns or open questions—not as assumed facts. Do not include cart, purchase, marketing, or customer-contact concepts unless relevant to the supplied scenario.`;
 
 
 function corsHeaders(origin, env) {
@@ -161,6 +163,8 @@ function validateProposal(value) {
 
   output.nodes = validTupleArray("nodes", 3, 7, 7);
   output.sequence = validTupleArray("sequence", 2, 5, 5);
+  output.decisionPaths = validTupleArray("decisionPaths", 3, 4, 4);
+  output.stateTransitions = validTupleArray("stateTransitions", 3, 5, 5);
   output.controls = value.controls;
   if (!Array.isArray(output.controls) || output.controls.length !== ERERA_DOMAINS.length) return null;
   output.controls = output.controls.map(item => {
@@ -169,8 +173,10 @@ function validateProposal(value) {
   });
   output.mapping = validTupleArray("mapping", 3, 4, 4);
 
-  if (!output.nodes || !output.sequence || !output.mapping) return null;
+  if (!output.nodes || !output.sequence || !output.decisionPaths || !output.stateTransitions || !output.mapping) return null;
   if (!output.nodes.every((node, index) => node[0] === BLUEPRINT_LAYERS[index].name && BLUEPRINT_LAYERS[index].components.some(component => node[1].toLowerCase().includes(component.toLowerCase())))) return null;
+  const sequenceText = output.sequence.map(step => step.join(" ")).join(" ").toLowerCase();
+  if (!BLUEPRINT_LAYERS.every(layer => sequenceText.includes(layer.name.toLowerCase()))) return null;
   if (!output.controls.every((control, index) => control.startsWith(ERERA_DOMAINS[index].name + ":") && ERERA_DOMAINS[index].components.some(component => control.includes(component.split(" — ")[0] + " — ")))) return null;
   return output;
 }
