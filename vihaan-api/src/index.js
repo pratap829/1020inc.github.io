@@ -137,48 +137,100 @@ function extractJsonObject(text) {
 }
 
 function validateProposal(value) {
+  const fail = message => {
+    throw new Error(`Proposal contract: ${message}`);
+  };
+
   const requiredStrings = ["summary", "outcome", "actors", "trigger", "data", "timing", "channels", "volume", "measurement", "constraints"];
-  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    fail("root must be a JSON object.");
+  }
 
   const output = {};
   for (const field of requiredStrings) {
-    if (typeof value[field] !== "string" || !value[field].trim()) return null;
+    if (typeof value[field] !== "string" || !value[field].trim()) {
+      fail(`required string field "${field}" is missing or empty.`);
+    }
     output[field] = value[field].trim().slice(0, 2_000);
   }
 
-  const validTupleArray = (field, tupleLength, minItems, maxItems) => {
+  const validTupleArray = (field, tupleLength, expectedItems) => {
     const items = value[field];
-    if (!Array.isArray(items) || items.length < minItems || items.length > maxItems) return null;
-    const clean = [];
-    for (const item of items) {
-      if (!Array.isArray(item) || item.length !== tupleLength) return null;
-      const tuple = [];
-      for (const entry of item) {
-        if (typeof entry !== "string" || !entry.trim()) return null;
-        tuple.push(entry.trim().slice(0, 1_000));
-      }
-      clean.push(tuple);
+    if (!Array.isArray(items)) {
+      fail(`"${field}" must be an array.`);
     }
-    return clean;
+    if (items.length !== expectedItems) {
+      fail(`"${field}" must contain exactly ${expectedItems} tuples; received ${items.length}.`);
+    }
+
+    return items.map((item, index) => {
+      if (!Array.isArray(item) || item.length !== tupleLength) {
+        fail(`"${field}" tuple ${index + 1} must contain exactly ${tupleLength} strings.`);
+      }
+      return item.map((entry, entryIndex) => {
+        if (typeof entry !== "string" || !entry.trim()) {
+          fail(`"${field}" tuple ${index + 1}, value ${entryIndex + 1} must be a non-empty string.`);
+        }
+        return entry.trim().slice(0, 1_000);
+      });
+    });
   };
 
-  output.nodes = validTupleArray("nodes", 3, 7, 7);
-  output.sequence = validTupleArray("sequence", 2, 5, 5);
-  output.decisionPaths = validTupleArray("decisionPaths", 3, 4, 4);
-  output.stateTransitions = validTupleArray("stateTransitions", 3, 5, 5);
-  output.controls = value.controls;
-  if (!Array.isArray(output.controls) || output.controls.length !== ERERA_DOMAINS.length) return null;
-  output.controls = output.controls.map(item => {
-    if (typeof item !== "string" || !item.trim()) throw new Error("Invalid control item.");
+  output.nodes = validTupleArray("nodes", 3, 7);
+  output.sequence = validTupleArray("sequence", 2, 5);
+  output.decisionPaths = validTupleArray("decisionPaths", 3, 4);
+  output.stateTransitions = validTupleArray("stateTransitions", 3, 5);
+  output.mapping = validTupleArray("mapping", 3, 4);
+
+  if (!Array.isArray(value.controls)) {
+    fail('"controls" must be an array.');
+  }
+  if (value.controls.length !== ERERA_DOMAINS.length) {
+    fail(`"controls" must contain exactly ${ERERA_DOMAINS.length} entries; received ${value.controls.length}.`);
+  }
+  output.controls = value.controls.map((item, index) => {
+    if (typeof item !== "string" || !item.trim()) {
+      fail(`"controls" entry ${index + 1} must be a non-empty string.`);
+    }
     return item.trim().slice(0, 1_000);
   });
-  output.mapping = validTupleArray("mapping", 3, 4, 4);
 
-  if (!output.nodes || !output.sequence || !output.decisionPaths || !output.stateTransitions || !output.mapping) return null;
-  if (!output.nodes.every((node, index) => node[0] === BLUEPRINT_LAYERS[index].name && BLUEPRINT_LAYERS[index].components.some(component => node[1].toLowerCase().includes(component.toLowerCase())))) return null;
+  for (let index = 0; index < BLUEPRINT_LAYERS.length; index += 1) {
+    const layer = BLUEPRINT_LAYERS[index];
+    const node = output.nodes[index];
+    if (node[0] !== layer.name) {
+      fail(`"nodes" entry ${index + 1} must use canonical layer "${layer.name}".`);
+    }
+    const selectedComponents = layer.components.filter(component =>
+      node[1].toLowerCase().includes(component.toLowerCase())
+    );
+    if (selectedComponents.length === 0) {
+      fail(`"nodes" entry ${index + 1} for "${layer.name}" must include at least one canonical component name.`);
+    }
+  }
+
   const sequenceText = output.sequence.map(step => step.join(" ")).join(" ").toLowerCase();
-  if (!BLUEPRINT_LAYERS.every(layer => sequenceText.includes(layer.name.toLowerCase()))) return null;
-  if (!output.controls.every((control, index) => control.startsWith(ERERA_DOMAINS[index].name + ":") && ERERA_DOMAINS[index].components.some(component => control.includes(component.split(" — ")[0] + " — ")))) return null;
+  for (const layer of BLUEPRINT_LAYERS) {
+    if (!sequenceText.includes(layer.name.toLowerCase())) {
+      fail(`"sequence" must explicitly reference Blueprint layer "${layer.name}".`);
+    }
+  }
+
+  for (let index = 0; index < ERERA_DOMAINS.length; index += 1) {
+    const domain = ERERA_DOMAINS[index];
+    const control = output.controls[index];
+    if (!control.startsWith(domain.name + ":")) {
+      fail(`"controls" entry ${index + 1} must begin with "${domain.name}:".`);
+    }
+    const hasCanonicalCode = domain.components.some(component => {
+      const code = component.split(" — ")[0];
+      return control.includes(code + " — ");
+    });
+    if (!hasCanonicalCode) {
+      fail(`"controls" entry ${index + 1} for "${domain.name}" must include a canonical component code and label.`);
+    }
+  }
+
   return output;
 }
 
@@ -250,7 +302,24 @@ export default {
       const result = await env.AI.run(model, {
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
-          { role: "user", content: JSON.stringify({ frameworkEngine: { blueprint: { name: "Enterprise Runtime Architecture Blueprint v1.0", role: "Execution plane", layers: BLUEPRINT_LAYERS } }, erera: { name: "ERERA v3.2", role: "Cross-cutting engineering and governance plane", domains: ERERA_DOMAINS }, businessContext: input }) }
+          {
+            role: "user",
+            content: JSON.stringify({
+              frameworkEngine: {
+                blueprint: {
+                  name: "Enterprise Runtime Architecture Blueprint v1.0",
+                  role: "Execution plane",
+                  layers: BLUEPRINT_LAYERS
+                },
+                erera: {
+                  name: "ERERA v3.2",
+                  role: "Cross-cutting engineering and governance plane",
+                  domains: ERERA_DOMAINS
+                }
+              },
+              businessContext: input
+            })
+          }
         ],
         temperature: 0.2,
         max_tokens: 4_000
