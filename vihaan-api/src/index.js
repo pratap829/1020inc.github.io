@@ -209,10 +209,19 @@ function validateProposal(value, input = {}) {
 
   const output = {};
   for (const field of requiredStrings) {
-    if (typeof value[field] !== "string" || !value[field].trim()) {
+    // The UI collects constraints separately. Preserve user-entered constraints if
+    // the model omits the field; explicitly mark the absence if the optional field is blank.
+    const suppliedValue = field === "constraints" &&
+      (typeof value[field] !== "string" || !value[field].trim())
+      ? (typeof input.constraints === "string" && input.constraints.trim()
+          ? input.constraints
+          : "No additional constraints were supplied. Treat unknowns as open questions and validate assumptions before implementation.")
+      : value[field];
+
+    if (typeof suppliedValue !== "string" || !suppliedValue.trim()) {
       fail(`required string field "${field}" is missing or empty.`);
     }
-    output[field] = value[field].trim().slice(0, 2_000);
+    output[field] = suppliedValue.trim().slice(0, 2_000);
   }
 
   const validTupleArray = (field, tupleLength, expectedItems) => {
