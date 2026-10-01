@@ -129,7 +129,7 @@ export default {
     if (suppliedAccessCode.length !== env.VIHAAN_ACCESS_CODE.length || suppliedAccessCode !== env.VIHAAN_ACCESS_CODE) {
       return jsonResponse({ error: "VIHAAN access code is missing or invalid." }, 401, origin, env);
     }
-    if (!env.OPENAI_API_KEY) {
+    if (!env.GEMINI_API_KEY) {
       return jsonResponse({ error: "The server-side model key is not configured yet." }, 503, origin, env);
     }
 
@@ -159,42 +159,95 @@ export default {
       return jsonResponse({ error: error instanceof SyntaxError ? "Invalid JSON body." : error.message }, 400, origin, env);
     }
 
-    const model = env.OPENAI_MODEL || "gpt-4.1-mini";
+    const model = env.GEMINI_MODEL || "gemini-3.8-flash";
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(env.GEMINI_API_KEY)}`;
+
+    const requestPayload = {
+      systemInstruction: {
+        parts: [{ text: SYSTEM_PROMPT }]
+      },
+      contents: [
+        {
+          role: "user",
+          parts: [{ text: JSON.stringify({ businessContext: input }) }]
+        }
+      ],
+      generationConfig: {
+        responseMimeType: "application/json"
+      }
+    };
+
     let upstream;
-    try {
-      upstream = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${env.OPENAI_API_KEY}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          model,
-          temperature: 0.2,
-          max_tokens: 1800,
-          response_format: { type: "json_object" },
-          messages: [
-            { role: "system", content: SYSTEM_PROMPT },
-            { role: "user", content: JSON.stringify({ businessContext: input }) }
-          ]
-        })
-      });
-    } catch {
-      return jsonResponse({ error: "The model service could not be reached. Please retry." }, 502, origin, env);
+    const maxRetries = 2;
+
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        upstream = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(requestPayload)
+        });
+      } catch {
+        if (attempt === maxRetries) {
+          return jsonResponse({ error: "The model service could not be reached. Please retry." }, 502, origin, env);
+        }
+      }
+
+      // If successful or non-retryable client error (e.g. 400, 401, 403), do not retry
+      if (upstream && (upstream.ok || (upstream.status !== 503 && upstream.status !== 429))) {
+        break;
+      }
+
+      // If temporary 503 (demand spike) or 429, wait with backoff before retrying
+      if (attempt < maxRetries) {
+        await new Promise((resolve) => setTimeout(resolve, 1500 * (attempt + 1)));
+      }
     }
 
-    if (!upstream.ok) {
-      // Do not return provider response bodies or secrets to the browser.
-      const status = upstream.status === 429 ? 429 : 502;
-      return jsonResponse({ error: status === 429 ? "The model service is busy or rate-limited. Please retry shortly." : "The model service did not complete the request." }, status, origin, env);
+    if (!upstream || !upstream.ok) {
+      const errText = upstream ? await upstream.text() : "No response";
+      console.error(`Gemini Upstream Error [${upstream?.status}]:`, errText);
+
+      if (upstream?.status === 503) {
+        return jsonResponse({ error: "The model service is currently experiencing high demand. Please try again shortly." }, 503, origin, env);
+      }
+      if (upstream?.status === 429) {
+        return jsonResponse({ error: "The model service is busy or rate-limited. Please retry shortly." }, 429, origin, env);
+      }
+      if (upstream?.status === 401 || upstream?.status === 403) {
+        return jsonResponse({ error: "The model service authentication failed. Please check server configuration." }, 502, origin, env);
+      }
+      return jsonResponse({ error: "The model service did not complete the request." }, 502, origin, env);
     }
 
     let payload;
     try {
       payload = await upstream.json();
-      const content = payload?.choices?.[0]?.message?.content;
-      const proposal = validateProposal(JSON.parse(content || "null"));
+
+      // Check for prompt-level block
+      if (payload?.promptFeedback?.blockReason) {
+        return jsonResponse({ error: "The request could not be processed due to safety policies." }, 400, origin, env);
+      }
+
+      const candidate = payload?.candidates?.[0];
+      if (!candidate) {
+        return jsonResponse({ error: "The model returned an empty candidate list. Please retry." }, 502, origin, env);
+      }
+
+      if (candidate.finishReason && !["STOP", "MAX_TOKENS"].includes(candidate.finishReason)) {
+        return jsonResponse({ error: `The model stopped generating due to: ${candidate.finishReason}.` }, 502, origin, env);
+      }
+
+      const text = candidate?.content?.parts?.[0]?.text;
+      if (!text || !text.trim()) {
+        return jsonResponse({ error: "The model returned an empty response. Please retry." }, 502, origin, env);
+      }
+
+      const proposal = validateProposal(JSON.parse(text));
       if (!proposal) throw new Error("Invalid proposal shape.");
+
       return jsonResponse({
         proposal,
         meta: {

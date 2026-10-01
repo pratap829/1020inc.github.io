@@ -489,7 +489,7 @@ try{
     generateBtn.textContent='Consulting VIHAAN model…';
     let accessCode=sessionStorage.getItem('vihaanAccessCode')||'';
     if(!accessCode){
-      accessCode=window.prompt('Enter the VIHAAN prototype access code. This is not your OpenAI API key.')||'';
+      accessCode=window.prompt('Enter the VIHAAN prototype access code. This is not your Gemini API key.')||'';
       if(!accessCode.trim())throw new Error('VIHAAN access code is required to use the model endpoint.');
       sessionStorage.setItem('vihaanAccessCode',accessCode.trim());
       accessCode=accessCode.trim();
@@ -508,6 +508,10 @@ try{
   current={...base,...v,problem:$('problem').value.trim(),title:'Cart abandonment recovery architecture',summary:v.summary||'VIHAAN has translated the stated business challenge into a draft architecture using a curated reference pattern. The proposed flow covers cart inactivity, purchase-state revalidation, authorized context, eligibility and suppression, channel activation, and outcome measurement. Technical details and client-specific capabilities remain to be verified; this is not an implementation-ready design.',platform:$('platform').value,generatedAt:new Date().toISOString(),mode,status,assumptionsStatus:'Proposed patterns are not verified facts about the client environment',userConfirmation:document.querySelector('input[name="approachConfirm"]:checked')?.value||'accept'};
   $('resultTitle').textContent=current.title;
   $('resultSubtitle').textContent=current.industry+' · '+(mode.startsWith('AI-assisted')?'AI-assisted draft':'Curated prototype')+' · Generated '+new Date().toLocaleString();
+  $('validation').classList.add('hidden');
+  render(current);
+  $('emptyState').classList.add('hidden');
+  $('result').classList.remove('hidden');
   render(current);
   $('emptyState').classList.add('hidden');
   $('result').classList.remove('hidden');

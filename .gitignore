@@ -1,0 +1,6 @@
+
+# Local development secrets
+**/.dev.vars
+
+# Local Cloudflare Wrangler state
+**/.wrangler/
