@@ -358,8 +358,8 @@ a{color:#172033!important;text-decoration:none!important}
 <div class="recommendation-item"><span class="recommendation-number">03</span><div><b>Define the decision and action</b><p>Describe the business rules, orchestration, responsible systems and human-review points that may be required.</p></div></div>
 <div class="recommendation-item"><span class="recommendation-number">04</span><div><b>Establish controls and outcomes</b><p>Identify measurable success criteria, exceptions, security and privacy safeguards, operational controls and unresolved questions.</p></div></div>
 </div>
-<div class="recommendation-confirm"><b>Does this proposed approach look reasonable as a starting point?</b><p>You can proceed without knowing how your systems implement these controls.</p><label class="choice-row"><input type="radio" name="approachConfirm" value="accept" checked> Yes, use it as a draft for review</label><label class="choice-row"><input type="radio" name="approachConfirm" value="review"> I want to add context before proceeding</label></div>
-<div class="field hidden" id="extraContextWrap"><label for="extraContext">Anything VIHAAN should take into account? <span class="optional">Optional</span></label><textarea id="extraContext" placeholder="Share only what you know. You can also leave this blank."></textarea></div>
+<div class="field"><label for="additionalContext">Additional business context <span class="optional">Optional</span></label><textarea id="additionalContext" placeholder="Known events, current processes, systems, data sources, policies, human-review steps, exceptions or other details that may affect the architecture. Leave blank if unknown."></textarea><p class="field-hint">Add facts you know; distinguish them from assumptions or ideas you want VIHAAN to explore.</p></div>
+<div class="field"><label for="constraints">Constraints, exclusions and assumptions <span class="optional">Optional</span></label><textarea id="constraints" placeholder="Budget or technology restrictions, systems that must remain, things to exclude, privacy/security requirements, unknown SLA thresholds, or capabilities that must not be assumed."></textarea><p class="field-hint">VIHAAN will carry these into the proposal as constraints or validation questions—not as verified capabilities.</p></div>
 </div>
 <div class="discovery-step hidden" data-step="3">
 <h3 class="discovery-heading">A few business preferences</h3>
@@ -367,7 +367,7 @@ a{color:#172033!important;text-decoration:none!important}
 <div class="field"><label for="timing">What timing or response expectation matters?</label><select id="timing"><option value="VIHAAN to propose timing and identify timing assumptions">Recommend an appropriate approach</option><option value="Near-real-time processing may be needed; latency target is not yet defined">Near real time, if feasible</option><option value="Scheduled or batch processing may be appropriate; cadence is not yet defined">Scheduled processing</option><option value="Timing and response expectations are not yet decided">Not sure yet</option></select></div>
 <div class="field"><label for="channels">Which systems or interaction channels are in scope?</label><select id="channels"><option value="VIHAAN to recommend relevant systems and interaction channels from the business context">Recommend from the business context</option><option value="Existing enterprise systems and internal users are the primary interaction scope">Enterprise systems and internal users</option><option value="Customer-facing digital channels may be in scope; actual channels are not confirmed">Customer-facing digital channels</option><option value="Multiple systems and channels may be involved; scope needs validation">Multiple systems or channels</option><option value="Systems and channel scope is not yet decided">Not sure yet</option></select></div>
 <div class="field"><label for="measurement">What matters most to the business?</label><select id="measurement"><option value="Business success measures not yet decided" selected>Business success measures not yet decided</option><option value="Prioritize operational efficiency, response time and service-level performance">Operational efficiency and SLA performance</option><option value="Prioritize customer experience, service quality and feedback">Customer experience and service quality</option><option value="Prioritize risk reduction, policy compliance and auditability">Risk reduction and compliance</option></select></div>
-<input type="hidden" id="actors"><input type="hidden" id="trigger"><input type="hidden" id="data"><input type="hidden" id="volume"><input type="hidden" id="constraints">
+<input type="hidden" id="actors"><input type="hidden" id="trigger"><input type="hidden" id="data"><input type="hidden" id="volume">
 <div class="field"><label for="platform">Architecture platform focus</label><select id="platform"><option value="conceptual" selected>Conceptual / platform-neutral</option><option value="adobe">Adobe Experience Cloud (indicative)</option></select><p class="field-hint">This chooses the proposal lens, not a claim that any Adobe product or capability is already configured.</p></div>
 </div>
 <div class="step-actions"><button class="btn btn-secondary" id="prevStepBtn" type="button" disabled>← Back</button><span id="stepCount" class="step-count">Step 1 of 3</span><button class="btn btn-primary" id="nextStepBtn" type="button">Continue →</button><button class="btn btn-primary hidden" id="generateBtn" type="submit">Generate architecture proposal →</button><button class="btn btn-secondary" id="clearBtn" type="button">Start over</button></div><div id="validation" class="validation hidden" role="alert"></div>
@@ -383,7 +383,7 @@ a{color:#172033!important;text-decoration:none!important}
 <script src="./config.js"></script>
 <script>
 (function(){
-const ids=['problem','industry','outcome','actors','trigger','data','timing','channels','volume','measurement','constraints'];let current=null;let discoveryStep=1;
+const ids=['problem','industry','outcome','actors','trigger','data','timing','channels','volume','measurement','additionalContext','constraints'];let current=null;let discoveryStep=1;
 const $=id=>document.getElementById(id);
 function showDiscoveryStep(step){
   discoveryStep=Math.max(1,Math.min(3,step));
@@ -411,10 +411,8 @@ $('nextStepBtn').addEventListener('click',()=>{
     return;
   }
   if(discoveryStep===2){
-    const choice=document.querySelector('input[name="approachConfirm"]:checked')?.value||'accept';
-    if(choice==='review' && $('extraContext').value.trim()){
-      $('constraints').value += '; Additional user context: '+$('extraContext').value.trim();
-    }
+    $('additionalContext').value=$('additionalContext').value.trim();
+    $('constraints').value=$('constraints').value.trim();
   }
   showDiscoveryStep(discoveryStep+1);
 });
@@ -428,13 +426,9 @@ $('confirmUnderstandingBtn').addEventListener('click',()=>{
   $('data').value='';
   $('volume').value='';
   $('constraints').value='';
-  $('extraContextWrap').classList.add('hidden');
+  $('additionalContext').value='';
   showDiscoveryStep(2);
 });
-document.querySelectorAll('input[name="approachConfirm"]').forEach(el=>el.addEventListener('change',()=>{
-  $('extraContextWrap').classList.toggle('hidden',document.querySelector('input[name="approachConfirm"]:checked').value!=='review');
-}));
-
 $('editUnderstandingBtn').addEventListener('click',()=>{
   $('understandingCard').classList.add('hidden');
   $('nextStepBtn').classList.remove('hidden');
@@ -443,7 +437,7 @@ $('editUnderstandingBtn').addEventListener('click',()=>{
 });
 $('prevStepBtn').addEventListener('click',()=>showDiscoveryStep(discoveryStep-1));
 showDiscoveryStep(1);
-$('clearBtn').addEventListener('click',()=>{$('intakeForm').reset();current=null;$('understandingCard').classList.add('hidden');$('extraContextWrap').classList.add('hidden');$('nextStepBtn').classList.remove('hidden');showDiscoveryStep(1);$('result').classList.add('hidden');$('emptyState').classList.remove('hidden');$('validation').classList.add('hidden')});
+$('clearBtn').addEventListener('click',()=>{$('intakeForm').reset();current=null;$('understandingCard').classList.add('hidden');$('nextStepBtn').classList.remove('hidden');showDiscoveryStep(1);$('result').classList.add('hidden');$('emptyState').classList.remove('hidden');$('validation').classList.add('hidden')});
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const bullets=(a,r=false)=>'<div class="list">'+a.map(x=>'<div class="list-item '+(r?'risk':'')+'"><span class="bullet"></span><span>'+esc(x)+'</span></div>').join('')+'</div>';
 function render(d){
@@ -488,7 +482,7 @@ try{
       sessionStorage.setItem('vihaanAccessCode',accessCode.trim());
       accessCode=accessCode.trim();
     }
-    const response=await fetch(apiUrl,{method:'POST',headers:{'Content-Type':'application/json','X-VIHAAN-ACCESS-CODE':accessCode},body:JSON.stringify({...v,platform:$('platform').value,userConfirmation:document.querySelector('input[name="approachConfirm"]:checked')?.value||'accept'})});
+    const response=await fetch(apiUrl,{method:'POST',headers:{'Content-Type':'application/json','X-VIHAAN-ACCESS-CODE':accessCode},body:JSON.stringify({...v,platform:$('platform').value,userConfirmation:'accept'})});
     let payload={};
     try{payload=await response.json()}catch{}
     if(response.status===401){sessionStorage.removeItem('vihaanAccessCode');throw new Error('Access code rejected. Generate again and enter the correct VIHAAN access code.');}
@@ -508,7 +502,7 @@ try{
   const cleanIndustry=$('industry').value.trim();
   const safeIndustry=/^(copy business context|business context|industry or business function \(optional\))$/i.test(cleanIndustry) ? 'Not specified' : (cleanIndustry||'Not specified');
   const safeOutcome=/^(copy desired outcome|desired outcome|optional)$/i.test($('outcome').value.trim()) ? '' : $('outcome').value.trim();
-  current={...v,outcome:safeOutcome||v.outcome,problem:problemText,industry:safeIndustry,title:cleanTitleSource.slice(0,90)+' — Architecture Proposal',summary:v.summary||'The business context could not be converted into a complete proposal. Please retry or inspect the model response.',platform:$('platform').value,generatedAt:new Date().toISOString(),mode,status,assumptionsStatus:'Proposed patterns are not verified facts about the client environment',userConfirmation:document.querySelector('input[name="approachConfirm"]:checked')?.value||'accept'};
+  current={...v,outcome:safeOutcome||v.outcome,problem:problemText,industry:safeIndustry,title:cleanTitleSource.slice(0,90)+' — Architecture Proposal',summary:v.summary||'The business context could not be converted into a complete proposal. Please retry or inspect the model response.',platform:$('platform').value,generatedAt:new Date().toISOString(),mode,status,assumptionsStatus:'Proposed patterns are not verified facts about the client environment',userConfirmation:'accept'};
   $('resultTitle').textContent=current.title;
   $('resultSubtitle').textContent=current.industry+' · '+(/framework-governed|ai-generated|ai-assisted/i.test(mode)?'Framework-governed draft':'Architecture draft')+' · Generated '+new Date().toLocaleString();
   $('validation').classList.add('hidden');
