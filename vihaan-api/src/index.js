@@ -180,8 +180,8 @@ const ERERA_LAYER_FOCUS = [
   ["Enterprise Governance", ["POL — Architecture Policy", "ADR — Architecture Decision Record"]],
   ["Telemetry & Observability Engineering", ["TRC — Distributed Trace", "COR — Correlation Context"]],
   ["Security & Privacy Engineering", ["IDC — Identity Context", "ABA — Attribute-Based Access", "CON — Consent Policy"]],
-  ["Latency & SLA Engineering", ["LAT — Latency Budget", "SLI — Service Level Indicators", "QUE — Queue Management"]],
-  ["Reliability Engineering", ["RET — Retry Policy", "CBR — Circuit Breaker", "RUN — Runbook"]],
+  ["Latency & SLA Engineering", ["LAT — Latency Budget", "SLI — Service Level Indicators", "SLO — Service Level Objectives"]],
+  ["Reliability Engineering", ["RET — Retry Policy", "CBR — Circuit Breaker", "FBK — Failure / Fallback"]],
   ["Telemetry & Observability Engineering", ["MET — Runtime Metrics", "TRC — Distributed Trace", "LOG — Runtime Logs"]],
   ["Reliability Engineering", ["IDP — Idempotency", "RET — Retry Policy", "DLQ — Dead Letter Queue", "REP — Replay"]]
 ];
