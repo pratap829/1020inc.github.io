@@ -243,7 +243,7 @@ export default {
       const result = await env.AI.run(model, {
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
-          { role: "user", content: JSON.stringify({ frameworkEngine: { blueprint: { name: "Enterprise Runtime Architecture Blueprint v1.0", role: "Execution plane", layers: BLUEPRINT_LAYERS }, erera: { name: "ERERA v3.2", role: "Cross-cutting engineering and governance plane", domains: ERERA_DOMAINS }, businessContext: input }) }
+          { role: "user", content: JSON.stringify({ frameworkEngine: { blueprint: { name: "Enterprise Runtime Architecture Blueprint v1.0", role: "Execution plane", layers: BLUEPRINT_LAYERS } }, erera: { name: "ERERA v3.2", role: "Cross-cutting engineering and governance plane", domains: ERERA_DOMAINS }, businessContext: input }) }
         ],
         temperature: 0.2,
         max_tokens: 4_000
