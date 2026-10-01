@@ -165,8 +165,8 @@ export default {
     if (suppliedAccessCode.length !== env.VIHAAN_ACCESS_CODE.length || suppliedAccessCode !== env.VIHAAN_ACCESS_CODE) {
       return jsonResponse({ error: "VIHAAN access code is missing or invalid." }, 401, origin, env);
     }
-    if (!env.GEMINI_API_KEY) {
-      return jsonResponse({ error: "The server-side model key is not configured yet." }, 503, origin, env);
+    if (!env.AI || typeof env.AI.run !== "function") {
+      return jsonResponse({ error: "Cloudflare Workers AI binding is not configured. Check the [ai] binding in wrangler.toml." }, 503, origin, env);
     }
 
     const contentType = request.headers.get("Content-Type") || "";
@@ -195,110 +195,71 @@ export default {
       return jsonResponse({ error: error instanceof SyntaxError ? "Invalid JSON body." : error.message }, 400, origin, env);
     }
 
-    const model = env.GEMINI_MODEL || "gemini-3.8-flash";
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(env.GEMINI_API_KEY)}`;
+    const model = env.WORKERS_AI_MODEL || "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
 
-    const requestPayload = {
-      systemInstruction: {
-        parts: [{ text: SYSTEM_PROMPT }]
-      },
-      contents: [
-        {
-          role: "user",
-          parts: [{ text: JSON.stringify({ businessContext: input }) }]
-        }
-      ],
-      generationConfig: {
-        responseMimeType: "application/json"
-      }
-    };
-
-    let upstream;
-    const maxRetries = 2;
-
-    for (let attempt = 0; attempt <= maxRetries; attempt++) {
-      try {
-        upstream = await fetch(endpoint, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(requestPayload)
-        });
-      } catch {
-        if (attempt === maxRetries) {
-          return jsonResponse({ error: "The model service could not be reached. Please retry." }, 502, origin, env);
-        }
-      }
-
-      // If successful or non-retryable client error (e.g. 400, 401, 403), do not retry
-      if (upstream && (upstream.ok || (upstream.status !== 503 && upstream.status !== 429))) {
-        break;
-      }
-
-      // If temporary 503 (demand spike) or 429, wait with backoff before retrying
-      if (attempt < maxRetries) {
-        await new Promise((resolve) => setTimeout(resolve, 1500 * (attempt + 1)));
-      }
-    }
-
-    if (!upstream || !upstream.ok) {
-      const errText = upstream ? await upstream.text() : "No response";
-      console.error(`Gemini Upstream Error [${upstream?.status}]:`, errText);
-
-      if (upstream?.status === 503) {
-        return jsonResponse({ error: "The model service is currently experiencing high demand. Please try again shortly." }, 503, origin, env);
-      }
-      if (upstream?.status === 429) {
-        return jsonResponse({ error: "The model service is busy or rate-limited. Please retry shortly." }, 429, origin, env);
-      }
-      if (upstream?.status === 401 || upstream?.status === 403) {
-        return jsonResponse({ error: "The model service authentication failed. Please check server configuration." }, 502, origin, env);
-      }
-      return jsonResponse({ error: "The model service did not complete the request." }, 502, origin, env);
-    }
-
-    let payload;
     try {
-      payload = await upstream.json();
+      const result = await env.AI.run(model, {
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          { role: "user", content: JSON.stringify({ businessContext: input }) }
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.2,
+        max_tokens: 4_000
+      });
 
-      // Check for prompt-level block
-      if (payload?.promptFeedback?.blockReason) {
-        return jsonResponse({ error: "The request could not be processed due to safety policies." }, 400, origin, env);
+      const generatedText = typeof result?.response === "string"
+        ? result.response
+        : typeof result === "string"
+          ? result
+          : "";
+
+      if (!generatedText.trim()) {
+        console.error("Workers AI returned no text response.");
+        return jsonResponse({ error: "The AI model returned an empty response. Please retry once." }, 502, origin, env);
       }
 
-      const candidate = payload?.candidates?.[0];
-      if (!candidate) {
-        return jsonResponse({ error: "The model returned an empty candidate list. Please retry." }, 502, origin, env);
+      let parsedProposal;
+      try {
+        parsedProposal = JSON.parse(generatedText);
+      } catch {
+        console.error("Workers AI response was not valid JSON.");
+        return jsonResponse({ error: "The AI model did not return valid JSON. Please retry once." }, 502, origin, env);
       }
 
-      if (candidate.finishReason && !["STOP", "MAX_TOKENS"].includes(candidate.finishReason)) {
-        return jsonResponse({ error: `The model stopped generating due to: ${candidate.finishReason}.` }, 502, origin, env);
+      let proposal;
+      try {
+        proposal = validateProposal(parsedProposal);
+      } catch (error) {
+        console.error("Workers AI proposal validation failed:", error instanceof Error ? error.message : "Unknown validation error");
+        proposal = null;
       }
 
-      const text = candidate?.content?.parts?.[0]?.text;
-      if (!text || !text.trim()) {
-        return jsonResponse({ error: "The model returned an empty response. Please retry." }, 502, origin, env);
-      }
-
-      const parsedProposal = JSON.parse(text);
-      const proposal = validateProposal(parsedProposal);
       if (!proposal) {
-        console.error("Gemini proposal validation failed: required fields, tuple structure, or node labels did not match the proposal contract.");
-        throw new Error("Invalid proposal shape.");
+        console.error("Workers AI proposal validation failed: required fields, tuple structure, or node labels did not match the proposal contract.");
+        return jsonResponse({ error: "The AI model returned an incomplete proposal. Inspect the local Worker terminal for validation details." }, 502, origin, env);
       }
 
       return jsonResponse({
         proposal,
         meta: {
-          mode: "AI-assisted draft using curated framework references",
+          mode: "AI-generated draft using Cloudflare Workers AI and curated framework references",
           status: "Draft for architectural review; validate all client-specific facts and platform capabilities.",
+          provider: "Cloudflare Workers AI",
           model
         }
       }, 200, origin, env);
     } catch (error) {
-      console.error("Gemini response processing failed:", error instanceof Error ? error.message : "Unknown response-processing error");
-      return jsonResponse({ error: "The model response could not be validated as a complete proposal. Please retry; if it repeats, inspect the local Worker terminal for the validation reason." }, 502, origin, env);
+      const message = error instanceof Error ? error.message : "Unknown Workers AI error";
+      console.error("Cloudflare Workers AI request failed:", message);
+
+      if (/rate.?limit|quota|too many requests|exceeded.*limit/i.test(message)) {
+        return jsonResponse({ error: "Cloudflare Workers AI usage limit reached. Check your Workers AI usage and try again after the limit resets." }, 429, origin, env);
+      }
+      if (/not found|unknown model|model.*not available/i.test(message)) {
+        return jsonResponse({ error: "The configured Workers AI model is unavailable. Check WORKERS_AI_MODEL in wrangler.toml." }, 502, origin, env);
+      }
+      return jsonResponse({ error: "Cloudflare Workers AI could not complete the request. Check the local Worker terminal for the provider error." }, 502, origin, env);
     }
   }
 };
