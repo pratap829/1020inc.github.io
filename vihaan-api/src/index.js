@@ -203,20 +203,34 @@ export default {
           { role: "system", content: SYSTEM_PROMPT },
           { role: "user", content: JSON.stringify({ businessContext: input }) }
         ],
-        response_format: { type: "json_object" },
         temperature: 0.2,
         max_tokens: 4_000
       });
 
-      const generatedText = typeof result?.response === "string"
-        ? result.response
-        : typeof result === "string"
-          ? result
-          : "";
+      // Workers AI models may expose generated text in different response envelopes.
+      // Keep a small compatibility layer and log only response shape metadata, never prompt or output content.
+      const candidates = [
+        result?.response,
+        result?.result?.response,
+        result?.choices?.[0]?.message?.content,
+        result?.output_text,
+        result?.generated_text,
+        typeof result === "string" ? result : null
+      ];
+      const generatedText = candidates.find(value => typeof value === "string" && value.trim()) || "";
 
       if (!generatedText.trim()) {
-        console.error("Workers AI returned no text response.");
-        return jsonResponse({ error: "The AI model returned an empty response. Please retry once." }, 502, origin, env);
+        const shape = result && typeof result === "object"
+          ? {
+              keys: Object.keys(result).slice(0, 20),
+              responseType: typeof result.response,
+              nestedResultType: typeof result.result,
+              choicesType: Array.isArray(result.choices) ? "array" : typeof result.choices,
+              usage: result.usage && typeof result.usage === "object" ? result.usage : undefined
+            }
+          : { resultType: typeof result };
+        console.error("Workers AI returned no extractable text. Response shape:", JSON.stringify(shape));
+        return jsonResponse({ error: "Cloudflare Workers AI returned no usable text. Check the local Worker terminal for response-shape diagnostics." }, 502, origin, env);
       }
 
       let parsedProposal;
