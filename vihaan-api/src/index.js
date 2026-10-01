@@ -13,7 +13,7 @@ const ALLOWED_FIELDS = [
   "platform", "userConfirmation"
 ];
 
-const SYSTEM_PROMPT = `You are VIHAAN, an enterprise architecture assistant for a single demonstration use case: cart abandonment recovery.
+const SYSTEM_PROMPT = `You are VIHAAN, an enterprise architecture assistant. Generate a context-specific architecture proposal for the business problem supplied in the request. Do not assume the use case is retail, cart abandonment, marketing, or Adobe-specific unless the supplied context supports that.
 Use the supplied business context to draft a cautious, reviewable architecture proposal grounded in:
 - Enterprise Runtime Architecture Blueprint v1.0 as the execution-plane reference.
 - ERERA v3.2 as the cross-cutting engineering and governance reference.
@@ -30,7 +30,7 @@ Structured fields:
 - controls: an array of 5 to 8 concise strings covering relevant ERERA v3.2 controls such as latency/SLA, performance, reliability, observability, security/privacy, governance, operations/cost.
 - mapping: exactly 4 arrays, each with exactly 3 strings: [capability, candidate platform or logical component, validation note]. Respect the requested platform focus; for platform-neutral requests, use logical capabilities rather than forcing Adobe products.
 
-Keep each string concise and specific to the supplied business context. The diagram nodes, sequence, controls, and mapping must be generated from the user's context, not copied from a fixed retail template. Do not claim these structures represent verified client systems. The summary should explain the proposed flow and mention that client-specific details require validation. Consider purchase-state revalidation, identity and consent/context, eligibility/suppression, frequency/contact policy, activation, measurement, duplicate/delayed events, and exception handling where relevant.`;
+Keep each string concise and specific to the supplied business context. The diagram nodes, sequence, controls, and mapping must be generated from the user's context, not copied from a fixed retail template. Do not claim these structures represent verified client systems. The summary should explain the proposed flow and mention that client-specific details require validation. Select domain-relevant signals, context, decisions, orchestration, actions, measurement, safeguards, exception handling, and technology mappings based on the actual scenario. Do not include cart, purchase, marketing, or customer-contact concepts unless relevant to the supplied scenario.`;
 
 function corsHeaders(origin, env) {
   const allowed = (env.ALLOWED_ORIGINS || "http://127.0.0.1:5500,http://localhost:5500")
@@ -281,8 +281,12 @@ export default {
         return jsonResponse({ error: "The model returned an empty response. Please retry." }, 502, origin, env);
       }
 
-      const proposal = validateProposal(JSON.parse(text));
-      if (!proposal) throw new Error("Invalid proposal shape.");
+      const parsedProposal = JSON.parse(text);
+      const proposal = validateProposal(parsedProposal);
+      if (!proposal) {
+        console.error("Gemini proposal validation failed: required fields, tuple structure, or node labels did not match the proposal contract.");
+        throw new Error("Invalid proposal shape.");
+      }
 
       return jsonResponse({
         proposal,
@@ -292,8 +296,9 @@ export default {
           model
         }
       }, 200, origin, env);
-    } catch {
-      return jsonResponse({ error: "The model returned an incomplete proposal. Please retry." }, 502, origin, env);
+    } catch (error) {
+      console.error("Gemini response processing failed:", error instanceof Error ? error.message : "Unknown response-processing error");
+      return jsonResponse({ error: "The model response could not be validated as a complete proposal. Please retry; if it repeats, inspect the local Worker terminal for the validation reason." }, 502, origin, env);
     }
   }
 };
