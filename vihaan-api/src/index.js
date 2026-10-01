@@ -197,7 +197,7 @@ function canonicalEreraFocus(layerIndex) {
   });
 }
 
-function validateProposal(value) {
+function validateProposal(value, input = {}) {
   const fail = message => {
     throw new Error(`Proposal contract: ${message}`);
   };
@@ -243,7 +243,8 @@ function validateProposal(value) {
   output.stateTransitions = validTupleArray("stateTransitions", 3, 5);
   output.mapping = validTupleArray("mapping", 3, 4);
 
-  const scenarioText = [value.summary, value.outcome, value.actors, value.trigger, value.data, value.constraints]
+  const scenarioText = [input.problem, input.industry, input.additionalContext, input.constraints,
+    value.summary, value.outcome, value.actors, value.trigger, value.data, value.constraints]
     .filter(item => typeof item === "string").join(" ").toLowerCase();
   if (/case prioritization|prioritize and route cases|customer-service case/.test(scenarioText)) {
     // VIHAAN runtime states are distinct from business case statuses.
@@ -461,7 +462,7 @@ export default {
 
       let proposal;
       try {
-        proposal = validateProposal(parsedProposal);
+        proposal = validateProposal(parsedProposal, input);
       } catch (error) {
         console.error("Workers AI proposal validation failed:", error instanceof Error ? error.message : "Unknown validation error");
         proposal = null;
