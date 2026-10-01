@@ -498,7 +498,17 @@ try{
     mode=payload.meta?.mode||'AI-generated draft';
     status=payload.meta?.status||status;
   }
-  current={...v,problem:$('problem').value.trim(),industry:$('industry').value.trim()||'Not specified',title:$('problem').value.trim().slice(0,80)+' — Architecture Proposal',summary:v.summary||'The business context could not be converted into a complete proposal. Please retry or inspect the model response.',platform:$('platform').value,generatedAt:new Date().toISOString(),mode,status,assumptionsStatus:'Proposed patterns are not verified facts about the client environment',userConfirmation:document.querySelector('input[name="approachConfirm"]:checked')?.value||'accept'};
+  const problemText=$('problem').value.trim().replace(/\s+/g,' ');
+  const titleSource=(problemText.split(/(?<=[.!?])\s+/)[0]||problemText)
+    .replace(/^design\s+(?:an?\s+)?(?:enterprise\s+)?architecture\s+for\s+/i,'')
+    .replace(/^create\s+(?:an?\s+)?(?:enterprise\s+)?architecture\s+for\s+/i,'')
+    .replace(/^develop\s+(?:an?\s+)?(?:enterprise\s+)?architecture\s+for\s+/i,'')
+    .replace(/[.!?;:,]+$/,'').trim();
+  const cleanTitleSource=titleSource ? titleSource.charAt(0).toUpperCase()+titleSource.slice(1) : 'Enterprise Architecture';
+  const cleanIndustry=$('industry').value.trim();
+  const safeIndustry=/^(copy business context|business context|industry or business function \(optional\))$/i.test(cleanIndustry) ? 'Not specified' : (cleanIndustry||'Not specified');
+  const safeOutcome=/^(copy desired outcome|desired outcome|optional)$/i.test($('outcome').value.trim()) ? '' : $('outcome').value.trim();
+  current={...v,outcome:safeOutcome||v.outcome,problem:problemText,industry:safeIndustry,title:cleanTitleSource.slice(0,90)+' — Architecture Proposal',summary:v.summary||'The business context could not be converted into a complete proposal. Please retry or inspect the model response.',platform:$('platform').value,generatedAt:new Date().toISOString(),mode,status,assumptionsStatus:'Proposed patterns are not verified facts about the client environment',userConfirmation:document.querySelector('input[name="approachConfirm"]:checked')?.value||'accept'};
   $('resultTitle').textContent=current.title;
   $('resultSubtitle').textContent=current.industry+' · '+(/framework-governed|ai-generated|ai-assisted/i.test(mode)?'Framework-governed draft':'Architecture draft')+' · Generated '+new Date().toLocaleString();
   $('validation').classList.add('hidden');
@@ -517,7 +527,7 @@ try{
 }
 });
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.result-section').forEach(x=>x.classList.toggle('hidden',x.id!=='tab-'+b.dataset.tab))}));
-$('printBtn').addEventListener('click',()=>{if(!current)return;window.print()});
+$('printBtn').addEventListener('click',()=>{if(!current)return;const originalTitle=document.title;document.title=current.title;const restoreTitle=()=>{document.title=originalTitle;window.removeEventListener('afterprint',restoreTitle)};window.addEventListener('afterprint',restoreTitle);window.print();setTimeout(restoreTitle,1500)});
 $('exportBtn').addEventListener('click',()=>{if(!current)return;const u=URL.createObjectURL(new Blob([JSON.stringify(current,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=u;a.download='vihaan-architecture-proposal.json';a.click();URL.revokeObjectURL(u)});
 $('copyBtn').addEventListener('click',async()=>{if(!current)return;const text=current.title+'\n\n'+current.summary+'\n\nIndustry: '+current.industry+'\nDesired outcome: '+current.outcome+'\nTrigger: '+current.trigger+'\nConstraints: '+current.constraints;try{await navigator.clipboard.writeText(text);$('copyBtn').textContent='Summary copied ✓';setTimeout(()=>$('copyBtn').textContent='Copy executive summary',1800)}catch(e){window.prompt('Copy the executive summary:',text)}});
 })();
