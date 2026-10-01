@@ -91,6 +91,28 @@ function sanitizeInput(input) {
   return clean;
 }
 
+function extractJsonObject(text) {
+  const trimmed = text.trim();
+  const unfenced = trimmed
+    .replace(/^\uFEFF/, "")
+    .replace(/^\s*```(?:json)?\s*/i, "")
+    .replace(/\s*```\s*$/i, "")
+    .trim();
+
+  try {
+    return JSON.parse(unfenced);
+  } catch {
+    // Some models prepend a sentence despite being asked for JSON only.
+    // Attempt to parse the outermost object without changing its contents.
+    const firstBrace = unfenced.indexOf("{");
+    const lastBrace = unfenced.lastIndexOf("}");
+    if (firstBrace >= 0 && lastBrace > firstBrace) {
+      return JSON.parse(unfenced.slice(firstBrace, lastBrace + 1));
+    }
+    throw new Error("No complete JSON object found in model response.");
+  }
+}
+
 function validateProposal(value) {
   const requiredStrings = ["summary", "outcome", "actors", "trigger", "data", "timing", "channels", "volume", "measurement", "constraints"];
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
@@ -235,10 +257,17 @@ export default {
 
       let parsedProposal;
       try {
-        parsedProposal = JSON.parse(generatedText);
-      } catch {
-        console.error("Workers AI response was not valid JSON.");
-        return jsonResponse({ error: "The AI model did not return valid JSON. Please retry once." }, 502, origin, env);
+        parsedProposal = extractJsonObject(generatedText);
+      } catch (error) {
+        const trimmed = generatedText.trim();
+        console.error("Workers AI JSON parsing failed:", JSON.stringify({
+          message: error instanceof Error ? error.message : "Unknown JSON parse error",
+          responseLength: generatedText.length,
+          startsWithFence: trimmed.startsWith("```"),
+          startsWithObject: trimmed.startsWith("{"),
+          endsWithObject: trimmed.endsWith("}")
+        }));
+        return jsonResponse({ error: "The AI model returned text that could not be parsed as a JSON object. Check the local Worker terminal for safe format diagnostics." }, 502, origin, env);
       }
 
       let proposal;
