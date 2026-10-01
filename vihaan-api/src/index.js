@@ -136,6 +136,46 @@ function extractJsonObject(text) {
   }
 }
 
+function applyContextGuardrails(proposal, input) {
+  // Preserve unknown workload facts instead of allowing generated prose to imply a known volume.
+  if (!input.volume || !input.volume.trim()) {
+    proposal.volume = "Unknown; case arrival volume, seasonality and peak throughput require discovery.";
+  }
+
+  const scenarioText = [input.problem, input.additionalContext, input.constraints]
+    .filter(Boolean).join(" ").toLowerCase();
+  const isCasePrioritization = /case prioritization|prioritize and route cases|customer-service case/i.test(scenarioText);
+
+  // For this explicit scenario, make the operational case-management boundary deterministic.
+  // These are conceptual candidate responsibilities, not claims about configured products.
+  if (input.platform === "adobe" && isCasePrioritization) {
+    proposal.mapping = [
+      [
+        "Authoritative case data and event intake",
+        "External case-management system of record and event integration; Adobe Experience Platform / Real-Time CDP only for governed customer context where appropriate",
+        "Confirm the authoritative case platform, event contract, identity matching, freshness, licensing and integration support. Do not treat Adobe as the case system of record."
+      ],
+      [
+        "SLA / impact assessment and priority decision",
+        "Case-management rules or a custom decision service; consider Adobe capabilities only where supported product fit is demonstrated",
+        "Validate SLA calculations, priority bands, thresholds, latency, rule ownership and whether any Adobe capability supports the required decision."
+      ],
+      [
+        "Assignment, escalation and human review",
+        "External case-management workflow or custom operational service",
+        "Validate queues, accountable ownership, human review, escalation workflow and case-update re-entry. Do not assume Adobe Journey Optimizer provides operational case assignment."
+      ],
+      [
+        "Audit, telemetry and recovery",
+        "Enterprise audit/state repository and operational telemetry; Adobe Analytics only for suitable business-outcome analysis",
+        "Validate retention, access controls, trace correlation, incident monitoring, audit ownership and separation of operational telemetry from experience analytics."
+      ]
+    ];
+  }
+
+  return proposal;
+}
+
 function validateProposal(value) {
   const fail = message => {
     throw new Error(`Proposal contract: ${message}`);
@@ -391,6 +431,8 @@ export default {
         console.error("Workers AI proposal validation failed without a specific contract diagnostic.");
         return jsonResponse({ error: "The generated proposal did not meet the framework contract. Retry or inspect local diagnostics." }, 502, origin, env);
       }
+
+      proposal = applyContextGuardrails(proposal, input);
 
       return jsonResponse({
         proposal,
