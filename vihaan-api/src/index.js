@@ -47,7 +47,7 @@ Return exactly one valid JSON object with these fields:
 String fields: summary, outcome, actors, trigger, data, timing, channels, volume, measurement, constraints.
 Structured fields:
 - nodes: exactly 7 arrays, each with exactly 3 strings: [canonical Blueprint layer name, one or more selected canonical component names from that layer's supplied components list, context-specific proposed responsibility]. Use every canonical Blueprint layer name exactly, in the exact supplied order. Do not invent component names or use generic labels as substitutes for canonical layers.
-- sequence: exactly 5 arrays, each with exactly 2 strings: [step title, step description]. Describe the actual proposed runtime sequence. Across the five descriptions, explicitly name all seven canonical Blueprint layers and explain how the operational steps traverse them. Include the business decision point, human-review option where warranted, state transitions, successful completion, failure/timeout handling, and safe re-entry after a case update.
+- sequence: exactly 5 arrays, each with exactly 2 strings: [step title, step description]. Describe the actual proposed runtime sequence. IMPORTANT: the five step descriptions must collectively contain the exact canonical layer names, spelled exactly as supplied, for all seven layers: "Journey Lifecycle", "Runtime Wake-Up", "Context Assembly", "Journey Runtime Engine", "Channel Activation", "Tracking & Analytics", and "Runtime State Machine". Use this explicit layer grouping as a reliable structure: Step 1 describes Journey Lifecycle and Runtime Wake-Up; Step 2 describes Context Assembly; Step 3 describes Journey Runtime Engine and its business decision; Step 4 describes Channel Activation and Tracking & Analytics; Step 5 describes Runtime State Machine, completion, failure/timeout handling, and safe re-entry after a case update. Repeat the exact layer names in the step descriptions even if similar concepts are mentioned elsewhere. Do not use synonyms in place of these required names. Include the human-review option where warranted and state transitions.
 - decisionPaths: exactly 4 arrays, each with exactly 3 strings: [condition or decision, proposed branch/action, resulting state or next step]. Include at least one normal route, one priority/SLA escalation, one human-review route, and one exception/re-entry route appropriate to the supplied context.
 - stateTransitions: exactly 5 arrays, each with exactly 3 strings: [current state, event/condition, next state]. Use the Blueprint state concepts Listening (Event Ready), Running (Executing), Waiting (Awaiting Timer), Running (Resumed), Completed (Success/End), and Archived (History) where relevant. Include failure/retry or re-entry where appropriate.
 - controls: exactly 7 strings, one for each ERERA domain in the supplied order. Each string must begin with the exact domain name followed by a colon and at least one exact three-letter component code from that domain's supplied component list (for example, "LAT — Latency Budget"), then a context-specific control proposal and any unknown to validate.
@@ -375,7 +375,9 @@ export default {
       }
 
       if (!proposal) {
-        console.error("Workers AI proposal validation failed: required fields, tuple structure, or node labels did not match the proposal contract.");
+        // validateProposal throws a specific contract error for every rejected structure.
+        // This fallback covers unexpected validator behavior without logging generated proposal content.
+        console.error("Workers AI proposal validation failed without a specific contract diagnostic.");
         return jsonResponse({ error: "The generated proposal did not meet the framework contract. Retry or inspect local diagnostics." }, 502, origin, env);
       }
 
