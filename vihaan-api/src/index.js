@@ -176,6 +176,27 @@ function applyContextGuardrails(proposal, input) {
   return proposal;
 }
 
+const ERERA_LAYER_FOCUS = [
+  ["Enterprise Governance", ["POL — Architecture Policy", "ADR — Architecture Decision Record"]],
+  ["Telemetry & Observability Engineering", ["TRC — Distributed Trace", "COR — Correlation Context"]],
+  ["Security & Privacy Engineering", ["IDC — Identity Context", "ABA — Attribute-Based Access", "CON — Consent Policy"]],
+  ["Latency & SLA Engineering", ["LAT — Latency Budget", "SLI — Service Level Indicators", "QUE — Queue Management"]],
+  ["Reliability Engineering", ["RET — Retry Policy", "CBR — Circuit Breaker", "RUN — Runbook"]],
+  ["Telemetry & Observability Engineering", ["MET — Runtime Metrics", "TRC — Distributed Trace", "LOG — Runtime Logs"]],
+  ["Reliability Engineering", ["IDP — Idempotency", "RET — Retry Policy", "DLQ — Dead Letter Queue", "REP — Replay"]]
+];
+
+function canonicalEreraFocus(layerIndex) {
+  const [domainName, requestedComponents] = ERERA_LAYER_FOCUS[layerIndex];
+  const domain = ERERA_DOMAINS.find(item => item.name === domainName);
+  if (!domain) throw new Error(`Missing ERERA domain for Blueprint layer ${layerIndex + 1}.`);
+  return requestedComponents.map(label => {
+    const canonical = domain.components.find(component => component === label);
+    if (!canonical) throw new Error(`ERERA focus component is not canonical: ${label}`);
+    return canonical;
+  });
+}
+
 function validateProposal(value) {
   const fail = message => {
     throw new Error(`Proposal contract: ${message}`);
@@ -222,6 +243,19 @@ function validateProposal(value) {
   output.stateTransitions = validTupleArray("stateTransitions", 3, 5);
   output.mapping = validTupleArray("mapping", 3, 4);
 
+  const scenarioText = [value.summary, value.outcome, value.actors, value.trigger, value.data, value.constraints]
+    .filter(item => typeof item === "string").join(" ").toLowerCase();
+  if (/case prioritization|prioritize and route cases|customer-service case/.test(scenarioText)) {
+    // VIHAAN runtime states are distinct from business case statuses.
+    output.stateTransitions = [
+      ["Listening (Event Ready)", "A new case event or eligible case update is accepted; deduplicate by event/case identity before processing.", "Running (Executing)"],
+      ["Running (Executing)", "Required context is missing or conflicting, human review is requested, or a timer/dependency wait is required.", "Waiting (Awaiting Timer)"],
+      ["Waiting (Awaiting Timer)", "A reviewer records a decision, a scheduled wait expires, or a dependency becomes available; revalidate current case context before resuming.", "Running (Resumed)"],
+      ["Running (Resumed)", "Priority assessment and the approved routing/escalation action succeed; record the outcome and required audit/telemetry evidence.", "Completed (Success/End)"],
+      ["Running (Executing) / Running (Resumed)", "On transient failure, apply bounded retries and wait before retry. If retries are exhausted, route to controlled failure/DLQ or manual recovery; reconcile before an eligible update re-enters Listening. Archive only after approved terminal-close and retention conditions.", "Waiting (Awaiting Timer) / Archived (History)"]
+    ];
+  }
+
   if (!Array.isArray(value.controls)) {
     fail('"controls" must be an array.');
   }
@@ -249,6 +283,14 @@ function validateProposal(value) {
       fail(`"nodes" entry ${index + 1} for "${layer.name}" must include at least one canonical component name.`);
     }
   }
+
+  // Make layer-to-ERERA traceability deterministic and catalog-backed.
+  // Preserve the generated responsibility while replacing any model-invented focus labels.
+  output.nodes = output.nodes.map((node, index) => {
+    const responsibility = node[2].replace(/\s*ERERA focus:[\s\S]*$/i, "").trim();
+    const focus = canonicalEreraFocus(index).join("; ");
+    return [node[0], node[1], `${responsibility} ERERA focus: ${focus}`];
+  });
 
   // Add canonical traceability labels deterministically instead of relying on the model
   // to reproduce exact framework names verbatim. The five-step grouping is part of the
