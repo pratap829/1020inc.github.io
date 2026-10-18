@@ -25,7 +25,6 @@
       --white: #ffffff;
       --font-sans: "Montserrat", sans-serif;
       --font-mono: "JetBrains Mono", monospace;
-      --font-math: "Cambria Math", "STIX Two Math", "Times New Roman", serif;
     }
 
     * { box-sizing: border-box; }
@@ -163,7 +162,7 @@
       background: radial-gradient(ellipse at 50% 48%, #1d6ff218, transparent 70%);
     }
 
-    /* Theory Header & Formula Pill */
+    /* Theory Header */
     .theory-header {
       position: relative;
       margin-bottom: 22px;
@@ -185,28 +184,7 @@
       font-weight: 600;
       color: var(--white);
       letter-spacing: -0.015em;
-      margin: 0 0 14px;
-    }
-
-    .formula-pill {
-      display: inline-flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: center;
-      gap: 10px 24px;
-      padding: 9px 18px;
-      border-radius: 12px;
-      background: #050914aa;
-      border: 1px solid #38bdf826;
-      font-family: var(--font-math);
-      font-style: italic;
-      font-size: clamp(13px, 1.8vw, 15px);
-      color: #bae6fd;
-      letter-spacing: 0.02em;
-    }
-
-    .formula-pill span {
-      white-space: nowrap;
+      margin: 0;
     }
 
     .shape-grid {
@@ -351,7 +329,6 @@
       h1 { letter-spacing: -0.04em; margin-bottom: 18px; }
       .intro { line-height: 1.75; }
       .shape-field { margin: 28px auto 32px; padding: 20px 12px 16px; border-radius: 18px; }
-      .formula-pill { padding: 8px 12px; gap: 6px 14px; font-size: 12px; }
       .shape-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 4px; }
       .shape-param { font-size: 8.5px; }
       .shape-caption { font-size: 8px; letter-spacing: .14em; }
@@ -432,10 +409,6 @@
       <div class="theory-header">
         <p class="theory-kicker">Constructed Geometry &nbsp;·&nbsp; Curves Traced Inside a Rolling Circle</p>
         <p class="theory-quote">“Geometry is just poetry written in motion.”</p>
-        <div class="formula-pill" aria-label="Parametric equations of a hypotrochoid">
-          <span>x(t) = (R − r) cos t + d cos(((R − r) / r) t)</span>
-          <span>y(t) = (R − r) sin t − d sin(((R − r) / r) t)</span>
-        </div>
       </div>
 
       <div class="shape-grid" id="hypotrochoid-grid" aria-hidden="true"></div>
@@ -467,7 +440,7 @@
         // Row 1: Electric Blue Spectrum (Energy / Movement / Digital Expression)
         { R: 1, p: 7, q: 13, d: 1 / 13,  label: "{1, 7/13, 1/13}",  color: "#3b82f6", duration: "3.0s", orbit: "44s", pulse: "9.5s" },
         { R: 1, p: 7, q: 13, d: 5 / 13,  label: "{1, 7/13, 5/13}",  color: "#60a5fa", duration: "3.0s", orbit: "52s", pulse: "11.0s" },
-        { R: 1, p: 7, q: 13, d: 7 / 13,  label: "#2563eb" ? "#38bdf8" : "#2563eb", label: "{1, 7/13, 7/13}", color: "#2563eb", duration: "3.0s", orbit: "38s", pulse: "8.8s" },
+        { R: 1, p: 7, q: 13, d: 7 / 13,  label: "{1, 7/13, 7/13}",  color: "#2563eb", duration: "3.0s", orbit: "38s", pulse: "8.8s" },
         { R: 1, p: 7, q: 13, d: 15 / 13, label: "{1, 7/13, 15/13}", color: "#93c5fd", duration: "3.0s", orbit: "48s", pulse: "10.2s" },
 
         // Row 2: Luminous Cyan-Blue Spectrum (Clarity / Precision / Direction)
