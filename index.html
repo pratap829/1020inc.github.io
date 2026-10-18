@@ -209,6 +209,11 @@
       transform: scale(1.06);
     }
 
+    @media (prefers-reduced-motion: reduce) {
+      .shape-cell { transition: none; }
+      .shape-cell:hover { transform: none; }
+    }
+
     .shape-cell svg {
       display: block;
       width: 100%;
@@ -236,6 +241,7 @@
     .shape-cell .pulse-path {
       stroke-width: 1.5;
       opacity: 0;
+      filter: drop-shadow(0 0 4px var(--shape-color));
     }
 
     .shape-param {
@@ -348,16 +354,16 @@
         stroke-dashoffset: var(--path-len, 2500);
         opacity: 0;
         animation: trace-initial var(--draw-duration, 2.8s) cubic-bezier(0.22, 1, 0.36, 1) forwards;
-        animation-delay: calc(var(--i, 0) * 100ms + 120ms);
+        animation-delay: var(--draw-delay, 120ms);
       }
 
       /* 3. Endless glowing ribbon that continuously traces through the loops */
       .shape-cell .pulse-path {
-        stroke-dasharray: calc(var(--path-len, 2500) * 0.28) calc(var(--path-len, 2500) * 0.72);
+        stroke-dasharray: var(--ribbon-len, 700) var(--ribbon-gap, 1800);
         stroke-dashoffset: var(--path-len, 2500);
         opacity: 0;
         animation: trace-forever var(--pulse-speed, 9s) linear infinite;
-        animation-delay: calc(var(--i, 0) * 100ms + var(--draw-duration, 2.8s));
+        animation-delay: var(--pulse-delay, 4s);
       }
 
       @keyframes continuous-orbit {
@@ -414,7 +420,7 @@
       <div class="shape-grid" id="hypotrochoid-grid" aria-hidden="true"></div>
 
       <p class="theory-body">
-        As a circle rolls endlessly within a larger boundary, a tracing point maps out smooth coordinates using sine and cosine functions. Tweaking radii and offsets transforms simple rotation into mesmerizing, symmetric mandalas of varying loops.
+        These curves are generated from the relative motion of two circles. Sine and cosine map a tracing point’s position; adjusting the radii and offset creates the distinctive loops in each mandala.
       </p>
 
       <p class="shape-caption">Ideas Into Impact &nbsp;·&nbsp; Detail Creates Distinction</p>
@@ -489,7 +495,9 @@
         basePath.setAttribute("class", "base-path");
         basePath.setAttribute("d", dString);
         basePath.style.setProperty("--shape-color", item.color);
-        basePath.style.setProperty("--i", index);
+        const drawDelay = index * 100 + 120;
+        const drawDuration = parseFloat(item.duration) * 1000;
+        basePath.style.setProperty("--draw-delay", drawDelay + "ms");
         basePath.style.setProperty("--draw-duration", item.duration);
 
         // Layer 2: Continuous active tracing ribbon (loops forever along the path)
@@ -497,8 +505,9 @@
         pulsePath.setAttribute("class", "pulse-path");
         pulsePath.setAttribute("d", dString);
         pulsePath.style.setProperty("--shape-color", item.color);
-        pulsePath.style.setProperty("--i", index);
         pulsePath.style.setProperty("--draw-duration", item.duration);
+        pulsePath.style.setProperty("--draw-delay", drawDelay + "ms");
+        pulsePath.style.setProperty("--pulse-delay", (drawDelay + drawDuration) + "ms");
         pulsePath.style.setProperty("--pulse-speed", item.pulse);
 
         svg.appendChild(basePath);
@@ -515,9 +524,13 @@
         grid.appendChild(cell);
 
         // Measure true rendered length and compensate for non-scaling-stroke
-        const rawLength = Math.ceil(basePath.getTotalLength() * 1.5);
-        basePath.style.setProperty("--path-len", rawLength);
-        pulsePath.style.setProperty("--path-len", rawLength);
+        const pathLength = basePath.getTotalLength();
+        const ribbonLength = pathLength * 0.28;
+        const ribbonGap = pathLength - ribbonLength;
+        basePath.style.setProperty("--path-len", pathLength);
+        pulsePath.style.setProperty("--path-len", pathLength);
+        pulsePath.style.setProperty("--ribbon-len", ribbonLength);
+        pulsePath.style.setProperty("--ribbon-gap", ribbonGap);
 
         basePath.addEventListener("animationend", function (e) {
           if (e.animationName === "trace-initial") {
