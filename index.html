@@ -523,7 +523,7 @@
         cell.appendChild(paramLabel);
         grid.appendChild(cell);
 
-        // Measure true rendered length and compensate for non-scaling-stroke
+        // Measure the exact path length so the dash pattern closes cleanly.
         const pathLength = basePath.getTotalLength();
         const ribbonLength = pathLength * 0.28;
         const ribbonGap = pathLength - ribbonLength;
