@@ -234,15 +234,7 @@
       opacity: 0.92;
     }
 
-    .shape-cell .trace-highlight {
-      stroke: #f8fafc;
-      stroke-width: 1.5px;
-      stroke-dasharray: 0.22 0.78;
-      stroke-dashoffset: 1;
-      opacity: 0;
-    }
-
-    .shape-param {
+     .shape-param {
       font-family: var(--font-mono);
       font-size: 9.5px;
       color: #64748b;
@@ -354,24 +346,13 @@
         animation-delay: var(--draw-delay, 100ms);
       }
 
-      .shape-cell .trace-highlight.is-active {
-        opacity: 0.88;
-        filter: drop-shadow(0 0 2px #f8fafc);
-        animation: trace-flow var(--trace-duration, 14s) linear infinite;
-      }
-
-      @keyframes trace-form {
+       @keyframes trace-form {
         0% { stroke-dashoffset: var(--path-length, 1); opacity: 0; }
         12% { opacity: 1; }
         100% { stroke-dashoffset: 0; opacity: 0.92; }
       }
 
-      @keyframes trace-flow {
-        from { stroke-dashoffset: 1; }
-        to   { stroke-dashoffset: 0; }
-      }
-
-      @keyframes continuous-orbit {
+       @keyframes continuous-orbit {
         from { transform: rotate(0deg); }
         to   { transform: rotate(calc(360deg * var(--dir, 1))); }
       }
@@ -490,15 +471,7 @@
         path.style.setProperty("--draw-delay", (index * 60 + 50) + "ms");
         path.style.setProperty("--draw-duration", item.duration);
 
-        const trace = document.createElementNS(ns, "path");
-        trace.setAttribute("class", "trace-highlight");
-        trace.setAttribute("pathLength", "1");
-        trace.setAttribute("d", dString);
-        trace.style.setProperty("--shape-color", item.color);
-        trace.style.setProperty("--trace-duration", "14s");
-
-        svg.appendChild(path);
-        svg.appendChild(trace);
+         svg.appendChild(path);
 
         const paramLabel = document.createElement("span");
         paramLabel.className = "shape-param";
@@ -510,21 +483,18 @@
         cell.appendChild(paramLabel);
         grid.appendChild(cell);
 
-        // Finish this complete outline, restore its static full-path stroke,
-        // and let that completed frame paint before its white trace begins.
-        path.addEventListener("animationend", function (event) {
-          if (event.animationName !== "trace-form") return;
-          path.classList.remove("is-tracing");
-          requestAnimationFrame(function () {
-            requestAnimationFrame(function () {
-              trace.classList.add("is-active");
-            });
-          });
-        }, { once: true });
+        // Animate only the first curve; all other curves remain fully visible.
+        if (index === 0) {
+          path.addEventListener("animationend", function (event) {
+            if (event.animationName === "trace-form") {
+              path.classList.remove("is-tracing");
+            }
+          }, { once: true });
 
-        // Force browser layout reflow before triggering the draw-in animation.
-        void path.offsetWidth;
-        path.classList.add("is-tracing");
+          // Force layout before starting the first curve's draw-in.
+          void path.offsetWidth;
+          path.classList.add("is-tracing");
+        }
       });
     })();
   </script>
