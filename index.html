@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
   <meta name="theme-color" content="#090b13">
-  <title>1020 Inc. — Something Is Taking Shape</title>
-  <meta name="description" content="1020 Inc. is preparing its next chapter in enterprise intelligence, architecture and AI.">
+  <title>1020 Inc. — Intelligence in Motion</title>
+  <meta name="description" content="1020 Inc. — Intelligence in Motion. Preparing our next chapter in enterprise intelligence, architecture and AI.">
 
-  <!-- Montserrat typography -->
+  <!-- Montserrat & JetBrains Mono typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;650;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Montserrat:ital,wght@0,400;0,500;0,600;0,650;0,700;0,800;1,400&display=swap" rel="stylesheet">
 
   <style>
     :root {
@@ -22,6 +22,8 @@
       --violet: #a78bfa;
       --purple: #6d43df;
       --font-sans: "Montserrat", sans-serif;
+      --font-mono: "JetBrains Mono", monospace;
+      --font-math: "Cambria Math", "STIX Two Math", "Times New Roman", serif;
     }
 
     * { box-sizing: border-box; }
@@ -32,7 +34,7 @@
       margin: 0;
       min-height: 100vh;
       background:
-        radial-gradient(ellipse at 50% 38%, #34205d55 0%, transparent 48%),
+        radial-gradient(ellipse at 50% 34%, #34205d55 0%, transparent 48%),
         linear-gradient(145deg, #090b13, #11101f 60%, #090b13);
       color: var(--text);
       font-family: var(--font-sans);
@@ -71,7 +73,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 0 auto 64px;
+      margin: 0 auto 56px;
       min-height: 42px;
     }
 
@@ -89,7 +91,7 @@
       font-size: clamp(10px, 1.6vw, 12px);
       line-height: 1.7;
       font-weight: 700;
-      margin-bottom: 26px;
+      margin-bottom: 24px;
     }
 
     h1 {
@@ -118,14 +120,15 @@
       text-wrap: pretty;
     }
 
+    /* Mathematical Showcase Card */
     .shape-field {
-      width: min(100%, 700px);
-      margin: 38px auto 42px;
-      padding: 22px 18px 18px;
-      border: 1px solid #c4b5fd18;
+      width: min(100%, 720px);
+      margin: 40px auto 42px;
+      padding: 28px 22px 22px;
+      border: 1px solid #c4b5fd1a;
       border-radius: 24px;
       background: linear-gradient(145deg, #ffffff05, #a78bfa08 55%, #ffffff02);
-      box-shadow: inset 0 1px 0 #ffffff08, 0 24px 80px #00000018;
+      box-shadow: inset 0 1px 0 #ffffff0a, 0 24px 80px #00000028;
       position: relative;
       overflow: hidden;
     }
@@ -135,31 +138,82 @@
       position: absolute;
       inset: 0;
       pointer-events: none;
-      background: radial-gradient(ellipse at 50% 45%, #8b5cf610, transparent 68%);
+      background: radial-gradient(ellipse at 50% 48%, #8b5cf612, transparent 70%);
+    }
+
+    /* Theory Header & Formula Pill */
+    .theory-header {
+      position: relative;
+      margin-bottom: 22px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid #ffffff0a;
+    }
+
+    .theory-kicker {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #c4b5fd;
+      margin: 0 0 8px;
+    }
+
+    .theory-quote {
+      font-size: clamp(15px, 2.2vw, 19px);
+      font-weight: 500;
+      color: #f4f1ff;
+      letter-spacing: -0.015em;
+      margin: 0 0 14px;
+    }
+
+    .formula-pill {
+      display: inline-flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 10px 22px;
+      padding: 9px 18px;
+      border-radius: 12px;
+      background: #090b1388;
+      border: 1px solid #c4b5fd18;
+      font-family: var(--font-math);
+      font-style: italic;
+      font-size: clamp(13px, 1.8vw, 15px);
+      color: #d8ccff;
+      letter-spacing: 0.02em;
+    }
+
+    .formula-pill span {
+      white-space: nowrap;
     }
 
     .shape-grid {
       position: relative;
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 8px;
+      gap: 12px 8px;
     }
 
     .shape-cell {
       min-width: 0;
-      aspect-ratio: 1 / 1;
-      display: grid;
-      place-items: center;
-      opacity: .9;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: .88;
       transition: opacity .35s ease, transform .35s ease;
     }
 
-    .shape-cell:hover { opacity: 1; transform: scale(1.06); }
+    .shape-cell:hover {
+      opacity: 1;
+      transform: scale(1.05);
+    }
 
     .shape-cell svg {
       display: block;
       width: 100%;
-      max-width: 132px;
+      max-width: 128px;
+      aspect-ratio: 1 / 1;
       overflow: visible;
       filter: drop-shadow(0 0 8px #a78bfa14);
       transform-origin: 50% 50%;
@@ -184,12 +238,40 @@
       opacity: 0;
     }
 
+    .shape-param {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      color: #77728e;
+      letter-spacing: 0.03em;
+      margin-top: 4px;
+      transition: color 0.3s ease;
+    }
+
+    .shape-cell:hover .shape-param {
+      color: #c4b5fd;
+    }
+
+    /* Theory Footer Narrative */
+    .theory-body {
+      position: relative;
+      max-width: 560px;
+      margin: 20px auto 0;
+      padding-top: 16px;
+      border-top: 1px solid #ffffff0a;
+      color: var(--muted);
+      font-size: clamp(12px, 1.7vw, 13.5px);
+      line-height: 1.75;
+      font-weight: 400;
+      text-wrap: pretty;
+    }
+
     .shape-caption {
       color: #8d87a7;
       font-size: 9px;
+      font-weight: 600;
       letter-spacing: .18em;
       text-transform: uppercase;
-      margin: 13px 0 0;
+      margin: 14px 0 0;
       position: relative;
     }
 
@@ -221,27 +303,30 @@
     }
 
     footer {
-      margin-top: 65px;
-      color: #77758a;
+      margin-top: 60px;
+      color: #8c88a3;
       font-size: 10px;
       line-height: 1.8;
       font-weight: 600;
-      letter-spacing: 0.13em;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
     }
 
     @media (max-width: 520px) {
-      body { padding: 24px 18px; }
-      main { padding: 28px 4px; }
-      .brand { margin-bottom: 48px; }
+      body { padding: 24px 16px; }
+      main { padding: 24px 4px; }
+      .brand { margin-bottom: 44px; }
       .brand-logo { width: 150px; }
-      .eyebrow { letter-spacing: 0.17em; margin-bottom: 22px; }
-      h1 { letter-spacing: -0.045em; margin-bottom: 22px; }
+      .eyebrow { letter-spacing: 0.16em; margin-bottom: 20px; }
+      h1 { letter-spacing: -0.045em; margin-bottom: 20px; }
       .intro { line-height: 1.8; }
-      .shape-field { margin: 30px auto 34px; padding: 12px 8px 13px; border-radius: 18px; }
-      .shape-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2px; }
+      .shape-field { margin: 30px auto 34px; padding: 20px 12px 16px; border-radius: 18px; }
+      .formula-pill { padding: 8px 12px; gap: 6px 14px; font-size: 12px; }
+      .shape-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px 4px; }
+      .shape-param { font-size: 8.5px; }
       .shape-caption { font-size: 8px; letter-spacing: .13em; }
       .status { font-size: 9px; letter-spacing: 0.09em; padding: 11px 14px; }
-      footer { margin-top: 48px; font-size: 9px; }
+      footer { margin-top: 46px; font-size: 9px; }
     }
 
     @media (prefers-reduced-motion: no-preference) {
@@ -301,7 +386,7 @@
       >
     </div>
 
-    <div class="eyebrow">A New Chapter Is Taking Shape</div>
+    <div class="eyebrow">1020 Inc. &nbsp;·&nbsp; Intelligence in Motion</div>
 
     <h1>We are building<br><span>what comes next.</span></h1>
 
@@ -312,8 +397,22 @@
       Something meaningful takes time.
     </p>
 
-    <section class="shape-field" aria-label="Mathematical curve studies">
+    <section class="shape-field" aria-label="Hypotrochoid mathematical curve studies">
+      <div class="theory-header">
+        <p class="theory-kicker">Hypotrochoids &nbsp;·&nbsp; Curves Traced Inside a Rolling Circle</p>
+        <p class="theory-quote">“Geometry is just poetry written in motion.”</p>
+        <div class="formula-pill" aria-label="Parametric equations of a hypotrochoid">
+          <span>x(t) = (R − r) cos t + d cos(((R − r) / r) t)</span>
+          <span>y(t) = (R − r) sin t − d sin(((R − r) / r) t)</span>
+        </div>
+      </div>
+
       <div class="shape-grid" id="hypotrochoid-grid" aria-hidden="true"></div>
+
+      <p class="theory-body">
+        As a circle rolls endlessly within a larger boundary, a tracing point maps out smooth coordinates using sine and cosine functions. Tweaking radii and offsets transforms simple rotation into mesmerizing, symmetric mandalas of varying loops.
+      </p>
+
       <p class="shape-caption">Patterns in motion · Possibilities taking form</p>
     </section>
 
@@ -322,7 +421,7 @@
       <span>Our next chapter is under construction</span>
     </div>
 
-    <footer>1020 INC. &nbsp;·&nbsp; THINK BEYOND THE OBVIOUS</footer>
+    <footer>1020 INC. &nbsp;·&nbsp; INTELLIGENCE IN MOTION &nbsp;·&nbsp; THINK BEYOND THE OBVIOUS</footer>
   </main>
   <script>
     // Exact hypotrochoid curves {R, r = p/q, d} from @mathemetica with continuous motion.
@@ -332,22 +431,22 @@
 
       const designs = [
         // Row 1: R = 1, r = 7/13 (7 full revolutions), d = {1, 5, 7, 15}/13
-        { R: 1, p: 7, q: 13, d: 1 / 13,  color: "#a78bfa", duration: "3.0s", orbit: "44s", pulse: "9.5s" },
-        { R: 1, p: 7, q: 13, d: 5 / 13,  color: "#b8a0ff", duration: "3.0s", orbit: "52s", pulse: "11.0s" },
-        { R: 1, p: 7, q: 13, d: 7 / 13,  color: "#8f6df0", duration: "3.0s", orbit: "38s", pulse: "8.8s" },
-        { R: 1, p: 7, q: 13, d: 15 / 13, color: "#c4b5fd", duration: "3.0s", orbit: "48s", pulse: "10.2s" },
+        { R: 1, p: 7, q: 13, d: 1 / 13,  label: "{1, 7/13, 1/13}",  color: "#a78bfa", duration: "3.0s", orbit: "44s", pulse: "9.5s" },
+        { R: 1, p: 7, q: 13, d: 5 / 13,  label: "{1, 7/13, 5/13}",  color: "#b8a0ff", duration: "3.0s", orbit: "52s", pulse: "11.0s" },
+        { R: 1, p: 7, q: 13, d: 7 / 13,  label: "{1, 7/13, 7/13}",  color: "#8f6df0", duration: "3.0s", orbit: "38s", pulse: "8.8s" },
+        { R: 1, p: 7, q: 13, d: 15 / 13, label: "{1, 7/13, 15/13}", color: "#c4b5fd", duration: "3.0s", orbit: "48s", pulse: "10.2s" },
 
         // Row 2: R = 1, r = 7/5 (7 full revolutions), d = {1, 5, 7, 15}/13
-        { R: 1, p: 7, q: 5,  d: 1 / 13,  color: "#d6a0c5", duration: "2.8s", orbit: "46s", pulse: "9.2s" },
-        { R: 1, p: 7, q: 5,  d: 5 / 13,  color: "#c68bb5", duration: "2.8s", orbit: "36s", pulse: "8.4s" },
-        { R: 1, p: 7, q: 5,  d: 7 / 13,  color: "#df9bbf", duration: "2.8s", orbit: "50s", pulse: "10.6s" },
-        { R: 1, p: 7, q: 5,  d: 15 / 13, color: "#b87caa", duration: "2.8s", orbit: "40s", pulse: "9.8s" },
+        { R: 1, p: 7, q: 5,  d: 1 / 13,  label: "{1, 7/5, 1/13}",   color: "#d6a0c5", duration: "2.8s", orbit: "46s", pulse: "9.2s" },
+        { R: 1, p: 7, q: 5,  d: 5 / 13,  label: "{1, 7/5, 5/13}",   color: "#c68bb5", duration: "2.8s", orbit: "36s", pulse: "8.4s" },
+        { R: 1, p: 7, q: 5,  d: 7 / 13,  label: "{1, 7/5, 7/13}",   color: "#df9bbf", duration: "2.8s", orbit: "50s", pulse: "10.6s" },
+        { R: 1, p: 7, q: 5,  d: 15 / 13, label: "{1, 7/5, 15/13}",  color: "#b87caa", duration: "2.8s", orbit: "40s", pulse: "9.8s" },
 
         // Row 3: R = 1, r = 3/4 (3 full revolutions), d = {8, 5, 7, 30}/13
-        { R: 1, p: 3, q: 4,  d: 8 / 13,  color: "#8bc6a4", duration: "2.2s", orbit: "34s", pulse: "7.2s" },
-        { R: 1, p: 3, q: 4,  d: 5 / 13,  color: "#8bc6a4", duration: "2.2s", orbit: "42s", pulse: "6.6s" },
-        { R: 1, p: 3, q: 4,  d: 7 / 13,  color: "#75b895", duration: "2.2s", orbit: "32s", pulse: "7.8s" },
-        { R: 1, p: 3, q: 4,  d: 30 / 13, color: "#a3d4b5", duration: "2.2s", orbit: "54s", pulse: "6.4s" }
+        { R: 1, p: 3, q: 4,  d: 8 / 13,  label: "{1, 3/4, 8/13}",   color: "#8bc6a4", duration: "2.2s", orbit: "34s", pulse: "7.2s" },
+        { R: 1, p: 3, q: 4,  d: 5 / 13,  label: "{1, 3/4, 5/13}",   color: "#8bc6a4", duration: "2.2s", orbit: "42s", pulse: "6.6s" },
+        { R: 1, p: 3, q: 4,  d: 7 / 13,  label: "{1, 3/4, 7/13}",   color: "#75b895", duration: "2.2s", orbit: "32s", pulse: "7.8s" },
+        { R: 1, p: 3, q: 4,  d: 30 / 13, label: "{1, 3/4, 30/13}",  color: "#a3d4b5", duration: "2.2s", orbit: "54s", pulse: "6.4s" }
       ];
 
       const ns = "http://www.w3.org/2000/svg";
@@ -356,7 +455,7 @@
         const svg = document.createElementNS(ns, "svg");
         svg.setAttribute("viewBox", "-46 -46 92 92");
         svg.setAttribute("role", "img");
-        svg.setAttribute("aria-label", "Abstract mathematical curve " + (index + 1));
+        svg.setAttribute("aria-label", "Hypotrochoid curve " + item.label);
         svg.style.setProperty("--orbit-speed", item.orbit);
         svg.style.setProperty("--dir", index % 2 === 0 ? "1" : "-1");
 
@@ -398,9 +497,14 @@
         svg.appendChild(basePath);
         svg.appendChild(pulsePath);
 
+        const paramLabel = document.createElement("span");
+        paramLabel.className = "shape-param";
+        paramLabel.textContent = item.label;
+
         const cell = document.createElement("div");
         cell.className = "shape-cell";
         cell.appendChild(svg);
+        cell.appendChild(paramLabel);
         grid.appendChild(cell);
 
         // Measure true rendered length and compensate for non-scaling-stroke
