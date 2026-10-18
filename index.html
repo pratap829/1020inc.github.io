@@ -235,8 +235,9 @@
     }
 
     .shape-cell .trace-highlight {
-      stroke-width: 1.55px;
-      stroke-dasharray: 0.24 0.76;
+      stroke: #f8fafc;
+      stroke-width: 1.5px;
+      stroke-dasharray: 0.22 0.78;
       stroke-dashoffset: 1;
       opacity: 0;
     }
@@ -353,8 +354,8 @@
       }
 
       .shape-cell .trace-highlight.is-active {
-        opacity: 0.9;
-        filter: drop-shadow(0 0 2px var(--shape-color));
+        opacity: 0.88;
+        filter: drop-shadow(0 0 2px #f8fafc);
         animation: trace-flow var(--trace-duration, 14s) linear infinite;
       }
 
@@ -452,6 +453,8 @@
       ];
 
       const ns = "http://www.w3.org/2000/svg";
+      const traces = [];
+      let completedDraws = 0;
 
       designs.forEach((item, index) => {
         const svg = document.createElementNS(ns, "svg");
@@ -496,6 +499,7 @@
 
         svg.appendChild(path);
         svg.appendChild(trace);
+        traces.push(trace);
 
         const paramLabel = document.createElement("span");
         paramLabel.className = "shape-param";
@@ -507,10 +511,14 @@
         cell.appendChild(paramLabel);
         grid.appendChild(cell);
 
-        // Start the highlight only after the full curve has finished drawing.
+        // Wait until every curve is fully drawn before starting the white overlay.
         path.addEventListener("animationend", function (event) {
-          if (event.animationName === "trace-form") {
-            trace.classList.add("is-active");
+          if (event.animationName !== "trace-form") return;
+          completedDraws += 1;
+          if (completedDraws === designs.length) {
+            traces.forEach(function (completedTrace) {
+              completedTrace.classList.add("is-active");
+            });
           }
         }, { once: true });
 
