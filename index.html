@@ -199,6 +199,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      cursor: pointer;
       transition: transform 0.35s ease;
     }
 
@@ -221,18 +222,42 @@
       will-change: transform;
     }
 
-    /* Razor-sharp vector lines with controlled draw-in class */
-    .shape-cell path {
+    /* Subtle ghost blueprint so the grid structure is always visible while drawing */
+    .shape-cell .ghost-path {
       fill: none;
       stroke: var(--shape-color, var(--electric-blue));
-      stroke-width: 1.25px;
+      stroke-width: 0.9px;
       stroke-linecap: round;
       stroke-linejoin: round;
       vector-effect: non-scaling-stroke;
-      opacity: 0.92;
+      opacity: 0.14;
     }
 
-     .shape-param {
+    /* Razor-sharp active vector path plotted live in real time */
+    .shape-cell .live-path {
+      fill: none;
+      stroke: var(--shape-color, var(--electric-blue));
+      stroke-width: 1.3px;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      vector-effect: non-scaling-stroke;
+      opacity: 0.95;
+    }
+
+    /* Tiny glowing tracing point that leads the curve while it is actively drawing */
+    .shape-cell .tracer-dot {
+      fill: #ffffff;
+      stroke: var(--shape-color, var(--electric-glow));
+      stroke-width: 1.5px;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+
+    .shape-cell .tracer-dot.is-drawing {
+      opacity: 1;
+    }
+
+    .shape-param {
       font-family: var(--font-mono);
       font-size: 9.5px;
       color: #64748b;
@@ -336,21 +361,7 @@
         animation: continuous-orbit var(--orbit-speed, 42s) linear infinite;
       }
 
-      .shape-cell .base-path.is-tracing {
-        stroke-dasharray: var(--path-length, 1) var(--path-length, 1);
-        stroke-dashoffset: var(--path-length, 1);
-        opacity: 0;
-        animation: trace-form var(--draw-duration, 2.6s) cubic-bezier(0.22, 1, 0.36, 1) forwards;
-        animation-delay: var(--draw-delay, 100ms);
-      }
-
-       @keyframes trace-form {
-        0% { stroke-dashoffset: var(--path-length, 1); opacity: 0; }
-        12% { opacity: 1; }
-        100% { stroke-dashoffset: 0; opacity: 0.92; }
-      }
-
-       @keyframes continuous-orbit {
+      @keyframes continuous-orbit {
         from { transform: rotate(0deg); }
         to   { transform: rotate(calc(360deg * var(--dir, 1))); }
       }
@@ -381,7 +392,7 @@
       complexity with autonomous execution.
     </p>
 
-    <section class="shape-field" aria-label="Constructed Geometry — Hypotrochoid curve studies">
+    <section class="shape-field" id="geometry-card" aria-label="Constructed Geometry — Hypotrochoid curve studies">
       <div class="theory-header">
         <p class="theory-kicker">Constructed Geometry &nbsp;·&nbsp; Parametric Curves in Motion</p>
         <p class="theory-quote">“Geometry is just poetry written in motion.”</p>
@@ -407,32 +418,36 @@
     </footer>
   </main>
   <script>
-    // Official 1020 Inc. Color Discipline with forced reflow for guaranteed draw-in.
+    // True real-time mathematical coordinate plotting so every curve draws live 0% -> 100%.
     (function () {
       const grid = document.getElementById("hypotrochoid-grid");
-      if (!grid) return;
+      const card = document.getElementById("geometry-card");
+      if (!grid || !card) return;
+
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
       const designs = [
-        // Row 1: Electric Blue Spectrum (Energy / Movement / Digital Expression)
-        { R: 1, p: 7, q: 13, d: 1 / 13,  label: "{1, 7/13, 1/13}",  color: "#3b82f6", duration: "2.8s", orbit: "44s" },
-        { R: 1, p: 7, q: 13, d: 5 / 13,  label: "{1, 7/13, 5/13}",  color: "#60a5fa", duration: "2.8s", orbit: "52s" },
-        { R: 1, p: 7, q: 13, d: 7 / 13,  label: "{1, 7/13, 7/13}",  color: "#2563eb", duration: "2.8s", orbit: "38s" },
-        { R: 1, p: 7, q: 13, d: 15 / 13, label: "{1, 7/13, 15/13}", color: "#93c5fd", duration: "2.8s", orbit: "48s" },
+        // Row 1: Electric Blue Spectrum (7 revolutions -> 6.5s live draw)
+        { R: 1, p: 7, q: 13, d: 1 / 13,  label: "{1, 7/13, 1/13}",  color: "#3b82f6", duration: 6400, orbit: "44s" },
+        { R: 1, p: 7, q: 13, d: 5 / 13,  label: "{1, 7/13, 5/13}",  color: "#60a5fa", duration: 6800, orbit: "52s" },
+        { R: 1, p: 7, q: 13, d: 7 / 13,  label: "{1, 7/13, 7/13}",  color: "#2563eb", duration: 6600, orbit: "38s" },
+        { R: 1, p: 7, q: 13, d: 15 / 13, label: "{1, 7/13, 15/13}", color: "#93c5fd", duration: 7200, orbit: "48s" },
 
-        // Row 2: Luminous Cyan-Blue Spectrum (Clarity / Precision / Direction)
-        { R: 1, p: 7, q: 5,  d: 1 / 13,  label: "{1, 7/5, 1/13}",   color: "#38bdf8", duration: "2.6s", orbit: "46s" },
-        { R: 1, p: 7, q: 5,  d: 5 / 13,  label: "{1, 7/5, 5/13}",   color: "#7dd3fc", duration: "2.6s", orbit: "36s" },
-        { R: 1, p: 7, q: 5,  d: 7 / 13,  label: "{1, 7/5, 7/13}",   color: "#0ea5e9", duration: "2.6s", orbit: "50s" },
-        { R: 1, p: 7, q: 5,  d: 15 / 13, label: "{1, 7/5, 15/13}",  color: "#bae6fd", duration: "2.6s", orbit: "40s" },
+        // Row 2: Luminous Cyan-Blue Spectrum (7 revolutions -> 6.2s live draw)
+        { R: 1, p: 7, q: 5,  d: 1 / 13,  label: "{1, 7/5, 1/13}",   color: "#38bdf8", duration: 6000, orbit: "46s" },
+        { R: 1, p: 7, q: 5,  d: 5 / 13,  label: "{1, 7/5, 5/13}",   color: "#7dd3fc", duration: 6400, orbit: "36s" },
+        { R: 1, p: 7, q: 5,  d: 7 / 13,  label: "{1, 7/5, 7/13}",   color: "#0ea5e9", duration: 6200, orbit: "50s" },
+        { R: 1, p: 7, q: 5,  d: 15 / 13, label: "{1, 7/5, 15/13}",  color: "#bae6fd", duration: 6800, orbit: "40s" },
 
-        // Row 3: Ice White & Slate Spectrum (Contrast / Foundation / Balance)
-        { R: 1, p: 3, q: 4,  d: 8 / 13,  label: "{1, 3/4, 8/13}",   color: "#cbd5e1", duration: "2.2s", orbit: "34s" },
-        { R: 1, p: 3, q: 4,  d: 5 / 13,  label: "{1, 3/4, 5/13}",   color: "#e2e8f0", duration: "2.2s", orbit: "42s" },
-        { R: 1, p: 3, q: 4,  d: 7 / 13,  label: "{1, 3/4, 7/13}",   color: "#94a3b8", duration: "2.2s", orbit: "32s" },
-        { R: 1, p: 3, q: 4,  d: 30 / 13, label: "{1, 3/4, 30/13}",  color: "#f8fafc", duration: "2.2s", orbit: "54s" }
+        // Row 3: Ice White & Slate Spectrum (3 revolutions -> 4.8s live draw)
+        { R: 1, p: 3, q: 4,  d: 8 / 13,  label: "{1, 3/4, 8/13}",   color: "#cbd5e1", duration: 4800, orbit: "34s" },
+        { R: 1, p: 3, q: 4,  d: 5 / 13,  label: "{1, 3/4, 5/13}",   color: "#e2e8f0", duration: 5000, orbit: "42s" },
+        { R: 1, p: 3, q: 4,  d: 7 / 13,  label: "{1, 3/4, 7/13}",   color: "#94a3b8", duration: 4600, orbit: "32s" },
+        { R: 1, p: 3, q: 4,  d: 30 / 13, label: "{1, 3/4, 30/13}",  color: "#f8fafc", duration: 5200, orbit: "54s" }
       ];
 
       const ns = "http://www.w3.org/2000/svg";
+      const controllers = [];
 
       designs.forEach((item, index) => {
         const svg = document.createElementNS(ns, "svg");
@@ -446,28 +461,42 @@
         const diff = item.R - r;
         const ratio = diff / r;
         const period = 2 * Math.PI * item.p;
-        const steps = item.p * 240;
+        const steps = item.p * 160;
         const maxAmplitude = Math.abs(diff) + Math.abs(item.d);
         const scale = 34 / (maxAmplitude || 1);
 
-        let data = "";
+        // Precompute exact (x, y) coordinates for fast real-time plotting
+        const points = [];
+        const segments = [];
         for (let i = 0; i <= steps; i++) {
           const t = (period * i) / steps;
-          const x = diff * Math.cos(t) + item.d * Math.cos(ratio * t);
-          const y = diff * Math.sin(t) - item.d * Math.sin(ratio * t);
-          data += (i ? "L" : "M") + (x * scale).toFixed(3) + " " + (y * scale).toFixed(3) + " ";
+          const x = (diff * Math.cos(t) + item.d * Math.cos(ratio * t)) * scale;
+          const y = (diff * Math.sin(t) - item.d * Math.sin(ratio * t)) * scale;
+          points.push({ x, y });
+          segments.push((i === 0 ? "M" : "L") + x.toFixed(2) + " " + y.toFixed(2));
         }
+        const fullPathData = segments.join(" ") + " Z";
 
-        const dString = data.trim() + " Z";
+        // 1. Subtle ghost blueprint path
+        const ghostPath = document.createElementNS(ns, "path");
+        ghostPath.setAttribute("class", "ghost-path");
+        ghostPath.setAttribute("d", fullPathData);
+        ghostPath.style.setProperty("--shape-color", item.color);
 
-        const path = document.createElementNS(ns, "path");
-        path.setAttribute("class", "base-path");
-        path.setAttribute("d", dString);
-        path.style.setProperty("--shape-color", item.color);
-        path.style.setProperty("--draw-delay", (index * 60 + 50) + "ms");
-        path.style.setProperty("--draw-duration", item.duration);
+        // 2. Active live-plotted vector path
+        const livePath = document.createElementNS(ns, "path");
+        livePath.setAttribute("class", "live-path");
+        livePath.style.setProperty("--shape-color", item.color);
 
-         svg.appendChild(path);
+        // 3. Leading tracing point dot
+        const tracerDot = document.createElementNS(ns, "circle");
+        tracerDot.setAttribute("class", "tracer-dot");
+        tracerDot.setAttribute("r", "1.6");
+        tracerDot.style.setProperty("--shape-color", item.color);
+
+        svg.appendChild(ghostPath);
+        svg.appendChild(livePath);
+        svg.appendChild(tracerDot);
 
         const paramLabel = document.createElement("span");
         paramLabel.className = "shape-param";
@@ -475,25 +504,74 @@
 
         const cell = document.createElement("div");
         cell.className = "shape-cell";
+        cell.title = "Click to replay curve tracing";
         cell.appendChild(svg);
         cell.appendChild(paramLabel);
         grid.appendChild(cell);
-        // Measure after attaching the SVG so the browser returns its full geometry length.
-        path.style.setProperty("--path-length", path.getTotalLength().toString());
 
-        // Animate only the first curve; all other curves remain fully visible.
-        if (index === 0) {
-          path.addEventListener("animationend", function (event) {
-            if (event.animationName === "trace-form") {
-              path.classList.remove("is-tracing");
+        let rafId = null;
+
+        function playDrawAnimation(staggerDelayMs) {
+          if (reducedMotion) {
+            livePath.setAttribute("d", fullPathData);
+            return;
+          }
+          if (rafId) cancelAnimationFrame(rafId);
+
+          livePath.setAttribute("d", "");
+          tracerDot.classList.remove("is-drawing");
+          const startTime = performance.now() + staggerDelayMs;
+
+          function frame(now) {
+            const elapsed = now - startTime;
+            if (elapsed < 0) {
+              rafId = requestAnimationFrame(frame);
+              return;
             }
-          }, { once: true });
 
-          // Force layout before starting the first curve's draw-in.
-          void path.offsetWidth;
-          path.classList.add("is-tracing");
+            const rawProgress = Math.min(1, elapsed / item.duration);
+            // Smooth ease-in-out sine curve so the tracing point glides naturally
+            const eased = 0.5 - Math.cos(rawProgress * Math.PI) / 2;
+            const currentStep = Math.max(1, Math.floor(eased * steps));
+
+            if (rawProgress < 1) {
+              livePath.setAttribute("d", segments.slice(0, currentStep + 1).join(" "));
+              const pt = points[currentStep];
+              tracerDot.setAttribute("cx", pt.x.toFixed(2));
+              tracerDot.setAttribute("cy", pt.y.toFixed(2));
+              tracerDot.classList.add("is-drawing");
+              rafId = requestAnimationFrame(frame);
+            } else {
+              // 100% complete: close path cleanly and hide tracing dot, then pause 2.5s and loop
+              livePath.setAttribute("d", fullPathData);
+              tracerDot.classList.remove("is-drawing");
+              setTimeout(() => playDrawAnimation(0), 2800);
+            }
+          }
+
+          rafId = requestAnimationFrame(frame);
         }
+
+        // Allow clicking any shape to immediately replay its live drawing
+        cell.addEventListener("click", () => playDrawAnimation(0));
+
+        controllers.push(() => playDrawAnimation(index * 180));
       });
+
+      // Trigger all 12 shapes to draw live as soon as the showcase card enters the screen
+      if ("IntersectionObserver" in window && !reducedMotion) {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              controllers.forEach((startFn) => startFn());
+              observer.disconnect();
+            }
+          });
+        }, { threshold: 0.2 });
+        observer.observe(card);
+      } else {
+        controllers.forEach((startFn) => startFn());
+      }
     })();
   </script>
 </body>
