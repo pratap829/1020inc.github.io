@@ -235,7 +235,7 @@
 
     .shape-cell .base-path {
       stroke-width: 1.1;
-      opacity: 0.85;
+      opacity: 0;
     }
 
     .shape-cell .trace-path {
@@ -347,26 +347,26 @@
         animation: continuous-orbit var(--orbit-speed, 42s) linear infinite;
       }
 
-      /* 2. Initial draw-in of the full geometry, settling into a delicate blueprint */
+      /* 2. Initial draw-in of the full geometry using normalized pathLength="1" */
       .shape-cell .base-path {
-        stroke-dasharray: var(--path-len, 2500);
-        stroke-dashoffset: var(--path-len, 2500);
+        stroke-dasharray: 1;
+        stroke-dashoffset: 1;
         opacity: 0;
         animation: trace-initial var(--draw-duration, 2.8s) cubic-bezier(0.22, 1, 0.36, 1) forwards;
         animation-delay: var(--draw-delay, 120ms);
       }
 
-      /* A steady dash travels the full closed path; opacity never cycles. */
+      /* 3. Continuous glowing pulse ribbon */
       .shape-cell .trace-path.is-active {
-        stroke-dasharray: var(--trace-length, 700) var(--trace-gap, 1800);
-        stroke-dashoffset: var(--path-len, 2500);
+        stroke-dasharray: 0.25 0.75;
+        stroke-dashoffset: 1;
         opacity: 0.95;
-        filter: drop-shadow(0 0 4px var(--shape-color));
+        filter: drop-shadow(0 0 6px var(--shape-color));
         animation: trace-flow var(--trace-speed, 14s) linear infinite;
       }
 
       @keyframes trace-flow {
-        from { stroke-dashoffset: var(--path-len, 2500); }
+        from { stroke-dashoffset: 1; }
         to   { stroke-dashoffset: 0; }
       }
 
@@ -376,12 +376,11 @@
       }
 
       @keyframes trace-initial {
-        0%   { stroke-dashoffset: var(--path-len, 2500); opacity: 0; }
+        0%   { stroke-dashoffset: 1; opacity: 0; }
         15%  { opacity: 0.95; }
         85%  { opacity: 0.95; }
         100% { stroke-dashoffset: 0; opacity: 0.85; }
       }
-
     }
   </style>
 </head>
@@ -435,7 +434,7 @@
     </footer>
   </main>
   <script>
-    // Official 1020 Inc. Color Discipline: Electric Blue, Ice Cyan, and Crisp White/Slate
+    // Official 1020 Inc. Color Discipline with normalized pathLength="1" for buttery-smooth drawing.
     (function () {
       const grid = document.getElementById("hypotrochoid-grid");
       if (!grid) return;
@@ -488,17 +487,19 @@
 
         const dString = data.trim() + " Z";
 
-        // Layer 1: Base blueprint path (draws once and stays visible)
+        // Layer 1: Base blueprint path
         const basePath = document.createElementNS(ns, "path");
         basePath.setAttribute("class", "base-path");
+        basePath.setAttribute("pathLength", "1");
         basePath.setAttribute("d", dString);
         basePath.style.setProperty("--shape-color", item.color);
-        const drawDelay = index * 100 + 120;
-        basePath.style.setProperty("--draw-delay", drawDelay + "ms");
+        basePath.style.setProperty("--draw-delay", (index * 90 + 100) + "ms");
         basePath.style.setProperty("--draw-duration", item.duration);
 
+        // Layer 2: Glowing tracing pulse path
         const tracePath = document.createElementNS(ns, "path");
         tracePath.setAttribute("class", "trace-path");
+        tracePath.setAttribute("pathLength", "1");
         tracePath.setAttribute("d", dString);
         tracePath.style.setProperty("--shape-color", item.color);
         tracePath.style.setProperty("--trace-speed", "14s");
@@ -516,15 +517,7 @@
         cell.appendChild(paramLabel);
         grid.appendChild(cell);
 
-        // Measure the exact path length so the dash pattern closes cleanly.
-        const pathLength = basePath.getTotalLength();
-        const traceLength = pathLength * 0.24;
-        const traceGap = pathLength - traceLength;
-        basePath.style.setProperty("--path-len", pathLength);
-        tracePath.style.setProperty("--path-len", pathLength);
-        tracePath.style.setProperty("--trace-length", traceLength);
-        tracePath.style.setProperty("--trace-gap", traceGap);
-
+        // Activate the glowing pulse trail once the base path finishes drawing
         basePath.addEventListener("animationend", function (e) {
           if (e.animationName === "trace-initial") {
             basePath.style.strokeDasharray = "none";
