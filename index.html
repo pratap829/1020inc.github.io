@@ -414,7 +414,7 @@
     </footer>
   </main>
   <script>
-    // Official 1020 Inc. Color Discipline with explicit class-based animation triggering.
+    // Official 1020 Inc. Color Discipline with forced reflow for guaranteed draw-in.
     (function () {
       const grid = document.getElementById("hypotrochoid-grid");
       if (!grid) return;
@@ -471,7 +471,7 @@
         path.setAttribute("pathLength", "1");
         path.setAttribute("d", dString);
         path.style.setProperty("--shape-color", item.color);
-        path.style.setProperty("--draw-delay", (index * 70 + 80) + "ms");
+        path.style.setProperty("--draw-delay", (index * 60 + 50) + "ms");
         path.style.setProperty("--draw-duration", item.duration);
 
         svg.appendChild(path);
@@ -486,12 +486,12 @@
         cell.appendChild(paramLabel);
         grid.appendChild(cell);
 
-        // Force browser layout calculation before adding the tracing class
-        requestAnimationFrame(() => {
-          path.classList.add("is-tracing");
-        });
+        // Force browser layout reflow before triggering the trace animation
+        void path.offsetWidth;
+        path.classList.add("is-tracing");
       });
     })();
+  </script>
   </script>
 </body>
 </html>
