@@ -238,6 +238,11 @@
       opacity: 0.85;
     }
 
+    .shape-cell .trace-path {
+      stroke-width: 1.65;
+      opacity: 0;
+    }
+
     .shape-param {
       font-family: var(--font-mono);
       font-size: 9.5px;
@@ -349,6 +354,20 @@
         opacity: 0;
         animation: trace-initial var(--draw-duration, 2.8s) cubic-bezier(0.22, 1, 0.36, 1) forwards;
         animation-delay: var(--draw-delay, 120ms);
+      }
+
+      /* A steady dash travels the full closed path; opacity never cycles. */
+      .shape-cell .trace-path.is-active {
+        stroke-dasharray: var(--trace-length, 700) var(--trace-gap, 1800);
+        stroke-dashoffset: var(--path-len, 2500);
+        opacity: 0.95;
+        filter: drop-shadow(0 0 4px var(--shape-color));
+        animation: trace-flow var(--trace-speed, 14s) linear infinite;
+      }
+
+      @keyframes trace-flow {
+        from { stroke-dashoffset: var(--path-len, 2500); }
+        to   { stroke-dashoffset: 0; }
       }
 
       @keyframes continuous-orbit {
@@ -475,11 +494,17 @@
         basePath.setAttribute("d", dString);
         basePath.style.setProperty("--shape-color", item.color);
         const drawDelay = index * 100 + 120;
-        const drawDuration = parseFloat(item.duration) * 1000;
         basePath.style.setProperty("--draw-delay", drawDelay + "ms");
         basePath.style.setProperty("--draw-duration", item.duration);
 
+        const tracePath = document.createElementNS(ns, "path");
+        tracePath.setAttribute("class", "trace-path");
+        tracePath.setAttribute("d", dString);
+        tracePath.style.setProperty("--shape-color", item.color);
+        tracePath.style.setProperty("--trace-speed", "14s");
+
         svg.appendChild(basePath);
+        svg.appendChild(tracePath);
 
         const paramLabel = document.createElement("span");
         paramLabel.className = "shape-param";
@@ -493,12 +518,18 @@
 
         // Measure the exact path length so the dash pattern closes cleanly.
         const pathLength = basePath.getTotalLength();
+        const traceLength = pathLength * 0.24;
+        const traceGap = pathLength - traceLength;
         basePath.style.setProperty("--path-len", pathLength);
+        tracePath.style.setProperty("--path-len", pathLength);
+        tracePath.style.setProperty("--trace-length", traceLength);
+        tracePath.style.setProperty("--trace-gap", traceGap);
 
         basePath.addEventListener("animationend", function (e) {
           if (e.animationName === "trace-initial") {
             basePath.style.strokeDasharray = "none";
             basePath.style.strokeDashoffset = "0";
+            tracePath.classList.add("is-active");
           }
         }, { once: true });
       });
