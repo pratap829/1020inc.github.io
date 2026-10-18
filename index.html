@@ -4,23 +4,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
-  <meta name="theme-color" content="#090b13">
+  <meta name="theme-color" content="#050914">
   <title>1020 Inc. — Intelligence in Motion</title>
-  <meta name="description" content="1020 Inc. — Intelligence in Motion. Preparing our next chapter in enterprise intelligence, architecture and AI.">
+  <meta name="description" content="1020 Inc. — Intelligence in Motion. Turning complexity into clarity for a smarter tomorrow. People, Ideas, Technology.">
 
-  <!-- Montserrat & JetBrains Mono typography -->
+  <!-- Montserrat (Official Brand Typeface) & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Montserrat:ital,wght@0,400;0,500;0,600;0,650;0,700;0,800;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
     :root {
       color-scheme: dark;
-      --bg: #090b13;
-      --text: #f4f1ff;
-      --muted: #a6a3b8;
-      --violet: #a78bfa;
-      --purple: #6d43df;
+      /* Official 1020 Inc. Brand Palette (Page 07 & 11) */
+      --navy-deep: #050914;
+      --navy-surface: #0a1226;
+      --electric-blue: #1d6ff2;
+      --electric-glow: #38bdf8;
+      --slate-gray: #8e9bb0;
+      --white: #ffffff;
       --font-sans: "Montserrat", sans-serif;
       --font-mono: "JetBrains Mono", monospace;
       --font-math: "Cambria Math", "STIX Two Math", "Times New Roman", serif;
@@ -34,9 +36,9 @@
       margin: 0;
       min-height: 100vh;
       background:
-        radial-gradient(ellipse at 50% 34%, #34205d55 0%, transparent 48%),
-        linear-gradient(145deg, #090b13, #11101f 60%, #090b13);
-      color: var(--text);
+        radial-gradient(ellipse at 50% 30%, #1d6ff22e 0%, transparent 52%),
+        linear-gradient(160deg, var(--navy-deep) 0%, var(--navy-surface) 55%, #040710 100%);
+      color: var(--white);
       font-family: var(--font-sans);
       display: flex;
       align-items: center;
@@ -48,89 +50,109 @@
       text-rendering: optimizeLegibility;
     }
 
+    /* Architectural Construction Grid (Page 05 & 08) */
     body::before {
       content: "";
       position: fixed;
       inset: 0;
       pointer-events: none;
       background-image:
-        linear-gradient(#ffffff08 1px, transparent 1px),
-        linear-gradient(90deg, #ffffff08 1px, transparent 1px);
+        linear-gradient(#38bdf809 1px, transparent 1px),
+        linear-gradient(90deg, #38bdf809 1px, transparent 1px);
       background-size: 48px 48px;
-      mask-image: linear-gradient(to bottom, black, transparent 85%);
+      mask-image: radial-gradient(ellipse at 50% 40%, black 20%, transparent 80%);
     }
 
     main {
       width: 100%;
-      max-width: 850px;
+      max-width: 860px;
       text-align: center;
       position: relative;
       z-index: 1;
-      padding: 36px 12px;
+      padding: 32px 12px;
     }
 
     .brand {
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      margin: 0 auto 56px;
-      min-height: 42px;
+      margin: 0 auto 52px;
+      gap: 10px;
     }
 
     .brand-logo {
       display: block;
-      width: clamp(145px, 24vw, 190px);
+      width: clamp(150px, 24vw, 195px);
       height: auto;
       object-fit: contain;
+      filter: drop-shadow(0 0 24px #1d6ff230);
+    }
+
+    .brand-tagline {
+      color: var(--slate-gray);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.34em;
+      text-transform: uppercase;
     }
 
     .eyebrow {
-      color: var(--violet);
+      color: var(--electric-glow);
       text-transform: uppercase;
-      letter-spacing: 0.22em;
-      font-size: clamp(10px, 1.6vw, 12px);
+      letter-spacing: 0.24em;
+      font-size: clamp(10px, 1.5vw, 11.5px);
       line-height: 1.7;
       font-weight: 700;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
 
     h1 {
-      font-size: clamp(39px, 8vw, 76px);
-      line-height: 1.12;
-      letter-spacing: -0.055em;
-      margin: 0 auto 24px;
-      font-weight: 600;
+      font-size: clamp(40px, 8vw, 76px);
+      line-height: 1.08;
+      letter-spacing: -0.045em;
+      margin: 0 auto 22px;
+      font-weight: 700;
       max-width: 780px;
     }
 
     h1 span {
-      background: linear-gradient(100deg, #ffffff, #c4b5fd 55%, #8b5cf6);
+      background: linear-gradient(100deg, #ffffff 15%, #93c5fd 55%, var(--electric-blue) 95%);
       background-clip: text;
       -webkit-background-clip: text;
       color: transparent;
     }
 
     .intro {
-      color: var(--muted);
-      font-size: clamp(14px, 2.2vw, 18px);
-      line-height: 1.9;
+      color: var(--slate-gray);
+      font-size: clamp(14px, 2.1vw, 17.5px);
+      line-height: 1.85;
       font-weight: 400;
-      max-width: 590px;
+      max-width: 610px;
       margin: 0 auto;
       text-wrap: pretty;
     }
 
-    /* Mathematical Showcase Card */
+    .intro strong {
+      color: #dbeafe;
+      font-weight: 600;
+    }
+
+    /* Constructed Geometry Showcase Card */
     .shape-field {
-      width: min(100%, 720px);
-      margin: 40px auto 42px;
-      padding: 28px 22px 22px;
-      border: 1px solid #c4b5fd1a;
+      width: min(100%, 730px);
+      margin: 40px auto 40px;
+      padding: 28px 24px 22px;
+      border: 1px solid #38bdf822;
       border-radius: 24px;
-      background: linear-gradient(145deg, #ffffff05, #a78bfa08 55%, #ffffff02);
-      box-shadow: inset 0 1px 0 #ffffff0a, 0 24px 80px #00000028;
+      background: linear-gradient(155deg, #0f1b3866, #070d1d99 60%, #1d6ff20d);
+      box-shadow:
+        inset 0 1px 0 #ffffff14,
+        0 28px 80px #00000066,
+        0 0 60px #1d6ff214;
       position: relative;
       overflow: hidden;
+      backdrop-filter: blur(12px);
     }
 
     .shape-field::before {
@@ -138,7 +160,7 @@
       position: absolute;
       inset: 0;
       pointer-events: none;
-      background: radial-gradient(ellipse at 50% 48%, #8b5cf612, transparent 70%);
+      background: radial-gradient(ellipse at 50% 48%, #1d6ff218, transparent 70%);
     }
 
     /* Theory Header & Formula Pill */
@@ -146,22 +168,22 @@
       position: relative;
       margin-bottom: 22px;
       padding-bottom: 18px;
-      border-bottom: 1px solid #ffffff0a;
+      border-bottom: 1px solid #ffffff12;
     }
 
     .theory-kicker {
       font-size: 10px;
       font-weight: 700;
-      letter-spacing: 0.2em;
+      letter-spacing: 0.22em;
       text-transform: uppercase;
-      color: #c4b5fd;
+      color: var(--electric-glow);
       margin: 0 0 8px;
     }
 
     .theory-quote {
       font-size: clamp(15px, 2.2vw, 19px);
-      font-weight: 500;
-      color: #f4f1ff;
+      font-weight: 600;
+      color: var(--white);
       letter-spacing: -0.015em;
       margin: 0 0 14px;
     }
@@ -171,15 +193,15 @@
       flex-wrap: wrap;
       align-items: center;
       justify-content: center;
-      gap: 10px 22px;
+      gap: 10px 24px;
       padding: 9px 18px;
       border-radius: 12px;
-      background: #090b1388;
-      border: 1px solid #c4b5fd18;
+      background: #050914aa;
+      border: 1px solid #38bdf826;
       font-family: var(--font-math);
       font-style: italic;
       font-size: clamp(13px, 1.8vw, 15px);
-      color: #d8ccff;
+      color: #bae6fd;
       letter-spacing: 0.02em;
     }
 
@@ -191,7 +213,7 @@
       position: relative;
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 12px 8px;
+      gap: 14px 10px;
     }
 
     .shape-cell {
@@ -200,13 +222,13 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      opacity: .88;
+      opacity: .9;
       transition: opacity .35s ease, transform .35s ease;
     }
 
     .shape-cell:hover {
       opacity: 1;
-      transform: scale(1.05);
+      transform: scale(1.06);
     }
 
     .shape-cell svg {
@@ -215,14 +237,14 @@
       max-width: 128px;
       aspect-ratio: 1 / 1;
       overflow: visible;
-      filter: drop-shadow(0 0 8px #a78bfa14);
+      filter: drop-shadow(0 0 10px #1d6ff228);
       transform-origin: 50% 50%;
       will-change: transform;
     }
 
     .shape-cell path {
       fill: none;
-      stroke: var(--shape-color, #a78bfa);
+      stroke: var(--shape-color, var(--electric-blue));
       stroke-linecap: round;
       stroke-linejoin: round;
       vector-effect: non-scaling-stroke;
@@ -234,31 +256,31 @@
     }
 
     .shape-cell .pulse-path {
-      stroke-width: 1.45;
+      stroke-width: 1.5;
       opacity: 0;
     }
 
     .shape-param {
       font-family: var(--font-mono);
       font-size: 9.5px;
-      color: #77728e;
+      color: #64748b;
       letter-spacing: 0.03em;
-      margin-top: 4px;
+      margin-top: 5px;
       transition: color 0.3s ease;
     }
 
     .shape-cell:hover .shape-param {
-      color: #c4b5fd;
+      color: var(--electric-glow);
     }
 
     /* Theory Footer Narrative */
     .theory-body {
       position: relative;
-      max-width: 560px;
+      max-width: 575px;
       margin: 20px auto 0;
       padding-top: 16px;
-      border-top: 1px solid #ffffff0a;
-      color: var(--muted);
+      border-top: 1px solid #ffffff12;
+      color: var(--slate-gray);
       font-size: clamp(12px, 1.7vw, 13.5px);
       line-height: 1.75;
       font-weight: 400;
@@ -266,10 +288,10 @@
     }
 
     .shape-caption {
-      color: #8d87a7;
-      font-size: 9px;
-      font-weight: 600;
-      letter-spacing: .18em;
+      color: #94a3b8;
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: .2em;
       text-transform: uppercase;
       margin: 14px 0 0;
       position: relative;
@@ -280,15 +302,15 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
-      border: 1px solid #a78bfa35;
-      background: #a78bfa0c;
-      color: #d8ccff;
-      padding: 12px 19px;
+      border: 1px solid #38bdf838;
+      background: #1d6ff214;
+      color: #e0f2fe;
+      padding: 12px 20px;
       border-radius: 100px;
       font-size: 10px;
       line-height: 1.6;
       font-weight: 600;
-      letter-spacing: 0.13em;
+      letter-spacing: 0.15em;
       text-transform: uppercase;
       max-width: 100%;
     }
@@ -298,35 +320,43 @@
       width: 7px;
       height: 7px;
       border-radius: 50%;
-      background: #a78bfa;
-      box-shadow: 0 0 12px #a78bfa;
+      background: var(--electric-glow);
+      box-shadow: 0 0 12px var(--electric-glow);
     }
 
     footer {
-      margin-top: 60px;
-      color: #8c88a3;
+      margin-top: 58px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      color: var(--slate-gray);
       font-size: 10px;
       line-height: 1.8;
       font-weight: 600;
-      letter-spacing: 0.16em;
+      letter-spacing: 0.2em;
       text-transform: uppercase;
+    }
+
+    footer .pillars {
+      color: #cbd5e1;
+      font-weight: 700;
     }
 
     @media (max-width: 520px) {
       body { padding: 24px 16px; }
       main { padding: 24px 4px; }
-      .brand { margin-bottom: 44px; }
+      .brand { margin-bottom: 40px; }
       .brand-logo { width: 150px; }
-      .eyebrow { letter-spacing: 0.16em; margin-bottom: 20px; }
-      h1 { letter-spacing: -0.045em; margin-bottom: 20px; }
-      .intro { line-height: 1.8; }
-      .shape-field { margin: 30px auto 34px; padding: 20px 12px 16px; border-radius: 18px; }
+      .eyebrow { letter-spacing: 0.16em; margin-bottom: 18px; }
+      h1 { letter-spacing: -0.04em; margin-bottom: 18px; }
+      .intro { line-height: 1.75; }
+      .shape-field { margin: 28px auto 32px; padding: 20px 12px 16px; border-radius: 18px; }
       .formula-pill { padding: 8px 12px; gap: 6px 14px; font-size: 12px; }
-      .shape-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px 4px; }
+      .shape-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 4px; }
       .shape-param { font-size: 8.5px; }
-      .shape-caption { font-size: 8px; letter-spacing: .13em; }
-      .status { font-size: 9px; letter-spacing: 0.09em; padding: 11px 14px; }
-      footer { margin-top: 46px; font-size: 9px; }
+      .shape-caption { font-size: 8px; letter-spacing: .14em; }
+      .status { font-size: 9px; letter-spacing: 0.1em; padding: 11px 15px; }
+      footer { margin-top: 44px; font-size: 9px; letter-spacing: 0.14em; }
     }
 
     @media (prefers-reduced-motion: no-preference) {
@@ -360,9 +390,9 @@
 
       @keyframes trace-initial {
         0%   { stroke-dashoffset: var(--path-len, 2500); opacity: 0; }
-        15%  { opacity: 0.9; }
-        85%  { opacity: 0.9; }
-        100% { stroke-dashoffset: 0; opacity: 0.38; }
+        15%  { opacity: 0.95; }
+        85%  { opacity: 0.95; }
+        100% { stroke-dashoffset: 0; opacity: 0.36; }
       }
 
       @keyframes trace-forever {
@@ -376,7 +406,7 @@
 </head>
 <body>
   <main>
-    <div class="brand" aria-label="1020 Inc.">
+    <div class="brand" aria-label="1020 Inc. — Intelligence in Motion">
       <img
         class="brand-logo"
         src="1020-Inc-White_Logo-Transparent.webp"
@@ -384,22 +414,23 @@
         width="2000"
         height="676"
       >
+      <span class="brand-tagline">Intelligence in Motion</span>
     </div>
 
-    <div class="eyebrow">1020 Inc. &nbsp;·&nbsp; Intelligence in Motion</div>
+    <div class="eyebrow">Same Foundation &nbsp;·&nbsp; More Possibilities</div>
 
-    <h1>We are building<br><span>what comes next.</span></h1>
+    <h1>Intelligence<br><span>in Motion.</span></h1>
 
     <p class="intro">
-      Intelligence. Architecture. Transformation.<br>
-      We are preparing a new chapter at the intersection
-      of enterprise thinking and emerging technology.
+      <strong>Turning complexity into clarity for a smarter tomorrow.</strong><br>
+      We are preparing a new chapter at the intersection of enterprise
+      architecture, governance, and emerging intelligence.
       Something meaningful takes time.
     </p>
 
-    <section class="shape-field" aria-label="Hypotrochoid mathematical curve studies">
+    <section class="shape-field" aria-label="Constructed Geometry — Hypotrochoid curve studies">
       <div class="theory-header">
-        <p class="theory-kicker">Hypotrochoids &nbsp;·&nbsp; Curves Traced Inside a Rolling Circle</p>
+        <p class="theory-kicker">Constructed Geometry &nbsp;·&nbsp; Curves Traced Inside a Rolling Circle</p>
         <p class="theory-quote">“Geometry is just poetry written in motion.”</p>
         <div class="formula-pill" aria-label="Parametric equations of a hypotrochoid">
           <span>x(t) = (R − r) cos t + d cos(((R − r) / r) t)</span>
@@ -413,40 +444,43 @@
         As a circle rolls endlessly within a larger boundary, a tracing point maps out smooth coordinates using sine and cosine functions. Tweaking radii and offsets transforms simple rotation into mesmerizing, symmetric mandalas of varying loops.
       </p>
 
-      <p class="shape-caption">Patterns in motion · Possibilities taking form</p>
+      <p class="shape-caption">Ideas Into Impact &nbsp;·&nbsp; Detail Creates Distinction</p>
     </section>
 
     <div class="status">
       <span class="dot" aria-hidden="true"></span>
-      <span>Our next chapter is under construction</span>
+      <span>Built for What’s Next &nbsp;·&nbsp; Under Construction</span>
     </div>
 
-    <footer>1020 INC. &nbsp;·&nbsp; INTELLIGENCE IN MOTION &nbsp;·&nbsp; THINK BEYOND THE OBVIOUS</footer>
+    <footer>
+      <div class="pillars">PEOPLE &nbsp;·&nbsp; IDEAS &nbsp;·&nbsp; TECHNOLOGY &nbsp;·&nbsp; A BRIGHTER TOMORROW</div>
+      <div>1020 INC. &nbsp;·&nbsp; INTELLIGENCE IN MOTION</div>
+    </footer>
   </main>
   <script>
-    // Exact hypotrochoid curves {R, r = p/q, d} from @mathemetica with continuous motion.
+    // Official 1020 Inc. Color Discipline: Electric Blue, Ice Cyan, and Crisp White/Slate
     (function () {
       const grid = document.getElementById("hypotrochoid-grid");
       if (!grid) return;
 
       const designs = [
-        // Row 1: R = 1, r = 7/13 (7 full revolutions), d = {1, 5, 7, 15}/13
-        { R: 1, p: 7, q: 13, d: 1 / 13,  label: "{1, 7/13, 1/13}",  color: "#a78bfa", duration: "3.0s", orbit: "44s", pulse: "9.5s" },
-        { R: 1, p: 7, q: 13, d: 5 / 13,  label: "{1, 7/13, 5/13}",  color: "#b8a0ff", duration: "3.0s", orbit: "52s", pulse: "11.0s" },
-        { R: 1, p: 7, q: 13, d: 7 / 13,  label: "{1, 7/13, 7/13}",  color: "#8f6df0", duration: "3.0s", orbit: "38s", pulse: "8.8s" },
-        { R: 1, p: 7, q: 13, d: 15 / 13, label: "{1, 7/13, 15/13}", color: "#c4b5fd", duration: "3.0s", orbit: "48s", pulse: "10.2s" },
+        // Row 1: Electric Blue Spectrum (Energy / Movement / Digital Expression)
+        { R: 1, p: 7, q: 13, d: 1 / 13,  label: "{1, 7/13, 1/13}",  color: "#3b82f6", duration: "3.0s", orbit: "44s", pulse: "9.5s" },
+        { R: 1, p: 7, q: 13, d: 5 / 13,  label: "{1, 7/13, 5/13}",  color: "#60a5fa", duration: "3.0s", orbit: "52s", pulse: "11.0s" },
+        { R: 1, p: 7, q: 13, d: 7 / 13,  label: "#2563eb" ? "#38bdf8" : "#2563eb", label: "{1, 7/13, 7/13}", color: "#2563eb", duration: "3.0s", orbit: "38s", pulse: "8.8s" },
+        { R: 1, p: 7, q: 13, d: 15 / 13, label: "{1, 7/13, 15/13}", color: "#93c5fd", duration: "3.0s", orbit: "48s", pulse: "10.2s" },
 
-        // Row 2: R = 1, r = 7/5 (7 full revolutions), d = {1, 5, 7, 15}/13
-        { R: 1, p: 7, q: 5,  d: 1 / 13,  label: "{1, 7/5, 1/13}",   color: "#d6a0c5", duration: "2.8s", orbit: "46s", pulse: "9.2s" },
-        { R: 1, p: 7, q: 5,  d: 5 / 13,  label: "{1, 7/5, 5/13}",   color: "#c68bb5", duration: "2.8s", orbit: "36s", pulse: "8.4s" },
-        { R: 1, p: 7, q: 5,  d: 7 / 13,  label: "{1, 7/5, 7/13}",   color: "#df9bbf", duration: "2.8s", orbit: "50s", pulse: "10.6s" },
-        { R: 1, p: 7, q: 5,  d: 15 / 13, label: "{1, 7/5, 15/13}",  color: "#b87caa", duration: "2.8s", orbit: "40s", pulse: "9.8s" },
+        // Row 2: Luminous Cyan-Blue Spectrum (Clarity / Precision / Direction)
+        { R: 1, p: 7, q: 5,  d: 1 / 13,  label: "{1, 7/5, 1/13}",   color: "#38bdf8", duration: "2.8s", orbit: "46s", pulse: "9.2s" },
+        { R: 1, p: 7, q: 5,  d: 5 / 13,  label: "{1, 7/5, 5/13}",   color: "#7dd3fc", duration: "2.8s", orbit: "36s", pulse: "8.4s" },
+        { R: 1, p: 7, q: 5,  d: 7 / 13,  label: "{1, 7/5, 7/13}",   color: "#0ea5e9", duration: "2.8s", orbit: "50s", pulse: "10.6s" },
+        { R: 1, p: 7, q: 5,  d: 15 / 13, label: "{1, 7/5, 15/13}",  color: "#bae6fd", duration: "2.8s", orbit: "40s", pulse: "9.8s" },
 
-        // Row 3: R = 1, r = 3/4 (3 full revolutions), d = {8, 5, 7, 30}/13
-        { R: 1, p: 3, q: 4,  d: 8 / 13,  label: "{1, 3/4, 8/13}",   color: "#8bc6a4", duration: "2.2s", orbit: "34s", pulse: "7.2s" },
-        { R: 1, p: 3, q: 4,  d: 5 / 13,  label: "{1, 3/4, 5/13}",   color: "#8bc6a4", duration: "2.2s", orbit: "42s", pulse: "6.6s" },
-        { R: 1, p: 3, q: 4,  d: 7 / 13,  label: "{1, 3/4, 7/13}",   color: "#75b895", duration: "2.2s", orbit: "32s", pulse: "7.8s" },
-        { R: 1, p: 3, q: 4,  d: 30 / 13, label: "{1, 3/4, 30/13}",  color: "#a3d4b5", duration: "2.2s", orbit: "54s", pulse: "6.4s" }
+        // Row 3: Ice White & Slate Spectrum (Contrast / Foundation / Balance)
+        { R: 1, p: 3, q: 4,  d: 8 / 13,  label: "{1, 3/4, 8/13}",   color: "#cbd5e1", duration: "2.2s", orbit: "34s", pulse: "7.2s" },
+        { R: 1, p: 3, q: 4,  d: 5 / 13,  label: "{1, 3/4, 5/13}",   color: "#e2e8f0", duration: "2.2s", orbit: "42s", pulse: "6.6s" },
+        { R: 1, p: 3, q: 4,  d: 7 / 13,  label: "{1, 3/4, 7/13}",   color: "#94a3b8", duration: "2.2s", orbit: "32s", pulse: "7.8s" },
+        { R: 1, p: 3, q: 4,  d: 30 / 13, label: "{1, 3/4, 30/13}",  color: "#f8fafc", duration: "2.2s", orbit: "54s", pulse: "6.4s" }
       ];
 
       const ns = "http://www.w3.org/2000/svg";
