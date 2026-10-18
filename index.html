@@ -454,8 +454,6 @@
       ];
 
       const ns = "http://www.w3.org/2000/svg";
-      const traces = [];
-      let completedDraws = 0;
 
       designs.forEach((item, index) => {
         const svg = document.createElementNS(ns, "svg");
@@ -501,7 +499,6 @@
 
         svg.appendChild(path);
         svg.appendChild(trace);
-        traces.push(trace);
 
         const paramLabel = document.createElement("span");
         paramLabel.className = "shape-param";
@@ -513,15 +510,16 @@
         cell.appendChild(paramLabel);
         grid.appendChild(cell);
 
-        // Wait until every curve is fully drawn before starting the white overlay.
+        // Finish this complete outline, restore its static full-path stroke,
+        // and let that completed frame paint before its white trace begins.
         path.addEventListener("animationend", function (event) {
           if (event.animationName !== "trace-form") return;
-          completedDraws += 1;
-          if (completedDraws === designs.length) {
-            traces.forEach(function (completedTrace) {
-              completedTrace.classList.add("is-active");
+          path.classList.remove("is-tracing");
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+              trace.classList.add("is-active");
             });
-          }
+          });
         }, { once: true });
 
         // Force browser layout reflow before triggering the draw-in animation.
