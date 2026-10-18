@@ -238,12 +238,6 @@
       opacity: 0.85;
     }
 
-    .shape-cell .pulse-path {
-      stroke-width: 1.5;
-      opacity: 0;
-      filter: drop-shadow(0 0 4px var(--shape-color));
-    }
-
     .shape-param {
       font-family: var(--font-mono);
       font-size: 9.5px;
@@ -335,7 +329,7 @@
       h1 { letter-spacing: -0.04em; margin-bottom: 18px; }
       .intro { line-height: 1.75; }
       .shape-field { margin: 28px auto 32px; padding: 20px 12px 16px; border-radius: 18px; }
-      .shape-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 4px; }
+      .shape-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 6px; }
       .shape-param { font-size: 8.5px; }
       .shape-caption { font-size: 8px; letter-spacing: .14em; }
       .status { font-size: 9px; letter-spacing: 0.1em; padding: 11px 15px; }
@@ -357,15 +351,6 @@
         animation-delay: var(--draw-delay, 120ms);
       }
 
-      /* 3. Endless glowing ribbon that continuously traces through the loops */
-      .shape-cell .pulse-path {
-        stroke-dasharray: var(--ribbon-len, 700) var(--ribbon-gap, 1800);
-        stroke-dashoffset: var(--path-len, 2500);
-        opacity: 0;
-        animation: trace-forever var(--pulse-speed, 9s) linear infinite;
-        animation-delay: var(--pulse-delay, 4s);
-      }
-
       @keyframes continuous-orbit {
         from { transform: rotate(0deg); }
         to   { transform: rotate(calc(360deg * var(--dir, 1))); }
@@ -378,12 +363,6 @@
         100% { stroke-dashoffset: 0; opacity: 0.36; }
       }
 
-      @keyframes trace-forever {
-        0%   { stroke-dashoffset: var(--path-len, 2500); opacity: 0; }
-        10%  { opacity: 1; }
-        90%  { opacity: 1; }
-        100% { stroke-dashoffset: 0; opacity: 0; }
-      }
     }
   </style>
 </head>
@@ -500,18 +479,7 @@
         basePath.style.setProperty("--draw-delay", drawDelay + "ms");
         basePath.style.setProperty("--draw-duration", item.duration);
 
-        // Layer 2: Continuous active tracing ribbon (loops forever along the path)
-        const pulsePath = document.createElementNS(ns, "path");
-        pulsePath.setAttribute("class", "pulse-path");
-        pulsePath.setAttribute("d", dString);
-        pulsePath.style.setProperty("--shape-color", item.color);
-        pulsePath.style.setProperty("--draw-duration", item.duration);
-        pulsePath.style.setProperty("--draw-delay", drawDelay + "ms");
-        pulsePath.style.setProperty("--pulse-delay", (drawDelay + drawDuration) + "ms");
-        pulsePath.style.setProperty("--pulse-speed", item.pulse);
-
         svg.appendChild(basePath);
-        svg.appendChild(pulsePath);
 
         const paramLabel = document.createElement("span");
         paramLabel.className = "shape-param";
@@ -525,12 +493,7 @@
 
         // Measure the exact path length so the dash pattern closes cleanly.
         const pathLength = basePath.getTotalLength();
-        const ribbonLength = pathLength * 0.28;
-        const ribbonGap = pathLength - ribbonLength;
         basePath.style.setProperty("--path-len", pathLength);
-        pulsePath.style.setProperty("--path-len", pathLength);
-        pulsePath.style.setProperty("--ribbon-len", ribbonLength);
-        pulsePath.style.setProperty("--ribbon-gap", ribbonGap);
 
         basePath.addEventListener("animationend", function (e) {
           if (e.animationName === "trace-initial") {
