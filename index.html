@@ -221,7 +221,7 @@
       will-change: transform;
     }
 
-    /* Razor-sharp vector lines with zero blur */
+    /* Razor-sharp vector lines with smooth draw-in */
     .shape-cell path {
       fill: none;
       stroke: var(--shape-color, var(--electric-blue));
@@ -229,6 +229,11 @@
       stroke-linecap: round;
       stroke-linejoin: round;
       vector-effect: non-scaling-stroke;
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+      opacity: 0;
+      animation: trace-form var(--draw-duration, 2.8s) cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      animation-delay: var(--draw-delay, 100ms);
     }
 
     .shape-param {
@@ -330,20 +335,9 @@
     }
 
     @media (prefers-reduced-motion: no-preference) {
-      /* 1. Continuous 360-degree slow orbital rotation */
+      /* Continuous 360-degree slow orbital rotation on the SVG container */
       .shape-cell svg {
         animation: continuous-orbit var(--orbit-speed, 42s) linear infinite;
-      }
-
-      /* 2. Crisp initial stroke draw-in entrance ("Taking Form") */
-      .shape-cell path {
-        stroke-dasharray: 1;
-        stroke-dashoffset: 1;
-        opacity: 0;
-        animation: 
-          trace-form var(--draw-duration, 2.6s) cubic-bezier(0.22, 1, 0.36, 1) forwards,
-          breathe 7s ease-in-out infinite alternate;
-        animation-delay: var(--draw-delay, 100ms), calc(var(--draw-duration, 2.6s) + var(--draw-delay, 100ms));
       }
 
       @keyframes trace-form {
@@ -351,18 +345,13 @@
           stroke-dashoffset: 1;
           opacity: 0;
         }
-        15% {
+        12% {
           opacity: 1;
         }
         100% {
           stroke-dashoffset: 0;
-          opacity: 0.9;
+          opacity: 0.92;
         }
-      }
-
-      @keyframes breathe {
-        0%   { opacity: 0.75; }
-        100% { opacity: 1; }
       }
 
       @keyframes continuous-orbit {
@@ -422,7 +411,7 @@
     </footer>
   </main>
   <script>
-    // Official 1020 Inc. Color Discipline with razor-sharp vector path drawing.
+    // Official 1020 Inc. Color Discipline with smooth, reliable pathLength="1" stroke drawing.
     (function () {
       const grid = document.getElementById("hypotrochoid-grid");
       if (!grid) return;
