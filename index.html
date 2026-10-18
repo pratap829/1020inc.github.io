@@ -238,12 +238,6 @@
       opacity: 0.85;
     }
 
-    .shape-cell .pulse-path {
-      stroke-width: 1.5;
-      opacity: 0;
-      filter: drop-shadow(0 0 4px var(--shape-color));
-    }
-
     .shape-param {
       font-family: var(--font-mono);
       font-size: 9.5px;
@@ -335,7 +329,7 @@
       h1 { letter-spacing: -0.04em; margin-bottom: 18px; }
       .intro { line-height: 1.75; }
       .shape-field { margin: 28px auto 32px; padding: 20px 12px 16px; border-radius: 18px; }
-      .shape-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 4px; }
+      .shape-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 6px; }
       .shape-param { font-size: 8.5px; }
       .shape-caption { font-size: 8px; letter-spacing: .14em; }
       .status { font-size: 9px; letter-spacing: 0.1em; padding: 11px 15px; }
@@ -357,15 +351,6 @@
         animation-delay: var(--draw-delay, 120ms);
       }
 
-      /* 3. Endless glowing ribbon that continuously traces through the loops */
-      .shape-cell .pulse-path {
-        stroke-dasharray: var(--ribbon-len, 700) var(--ribbon-gap, 1800);
-        stroke-dashoffset: var(--path-len, 2500);
-        opacity: 0;
-        animation: trace-forever var(--pulse-speed, 9s) linear infinite;
-        animation-delay: var(--pulse-delay, 4s);
-      }
-
       @keyframes continuous-orbit {
         from { transform: rotate(0deg); }
         to   { transform: rotate(calc(360deg * var(--dir, 1))); }
@@ -375,15 +360,9 @@
         0%   { stroke-dashoffset: var(--path-len, 2500); opacity: 0; }
         15%  { opacity: 0.95; }
         85%  { opacity: 0.95; }
-        100% { stroke-dashoffset: 0; opacity: 0.36; }
+        100% { stroke-dashoffset: 0; opacity: 0.85; }
       }
 
-      @keyframes trace-forever {
-        0%   { stroke-dashoffset: var(--path-len, 2500); opacity: 0; }
-        10%  { opacity: 1; }
-        90%  { opacity: 1; }
-        100% { stroke-dashoffset: 0; opacity: 0; }
-      }
     }
   </style>
 </head>
@@ -444,22 +423,22 @@
 
       const designs = [
         // Row 1: Electric Blue Spectrum (Energy / Movement / Digital Expression)
-        { R: 1, p: 7, q: 13, d: 1 / 13,  label: "{1, 7/13, 1/13}",  color: "#3b82f6", duration: "3.0s", orbit: "44s", pulse: "9.5s" },
-        { R: 1, p: 7, q: 13, d: 5 / 13,  label: "{1, 7/13, 5/13}",  color: "#60a5fa", duration: "3.0s", orbit: "52s", pulse: "11.0s" },
-        { R: 1, p: 7, q: 13, d: 7 / 13,  label: "{1, 7/13, 7/13}",  color: "#2563eb", duration: "3.0s", orbit: "38s", pulse: "8.8s" },
-        { R: 1, p: 7, q: 13, d: 15 / 13, label: "{1, 7/13, 15/13}", color: "#93c5fd", duration: "3.0s", orbit: "48s", pulse: "10.2s" },
+        { R: 1, p: 7, q: 13, d: 1 / 13,  label: "{1, 7/13, 1/13}",  color: "#3b82f6", duration: "3.0s", orbit: "44s" },
+        { R: 1, p: 7, q: 13, d: 5 / 13,  label: "{1, 7/13, 5/13}",  color: "#60a5fa", duration: "3.0s", orbit: "52s" },
+        { R: 1, p: 7, q: 13, d: 7 / 13,  label: "{1, 7/13, 7/13}",  color: "#2563eb", duration: "3.0s", orbit: "38s" },
+        { R: 1, p: 7, q: 13, d: 15 / 13, label: "{1, 7/13, 15/13}", color: "#93c5fd", duration: "3.0s", orbit: "48s" },
 
         // Row 2: Luminous Cyan-Blue Spectrum (Clarity / Precision / Direction)
-        { R: 1, p: 7, q: 5,  d: 1 / 13,  label: "{1, 7/5, 1/13}",   color: "#38bdf8", duration: "2.8s", orbit: "46s", pulse: "9.2s" },
-        { R: 1, p: 7, q: 5,  d: 5 / 13,  label: "{1, 7/5, 5/13}",   color: "#7dd3fc", duration: "2.8s", orbit: "36s", pulse: "8.4s" },
-        { R: 1, p: 7, q: 5,  d: 7 / 13,  label: "{1, 7/5, 7/13}",   color: "#0ea5e9", duration: "2.8s", orbit: "50s", pulse: "10.6s" },
-        { R: 1, p: 7, q: 5,  d: 15 / 13, label: "{1, 7/5, 15/13}",  color: "#bae6fd", duration: "2.8s", orbit: "40s", pulse: "9.8s" },
+        { R: 1, p: 7, q: 5,  d: 1 / 13,  label: "{1, 7/5, 1/13}",   color: "#38bdf8", duration: "2.8s", orbit: "46s" },
+        { R: 1, p: 7, q: 5,  d: 5 / 13,  label: "{1, 7/5, 5/13}",   color: "#7dd3fc", duration: "2.8s", orbit: "36s" },
+        { R: 1, p: 7, q: 5,  d: 7 / 13,  label: "{1, 7/5, 7/13}",   color: "#0ea5e9", duration: "2.8s", orbit: "50s" },
+        { R: 1, p: 7, q: 5,  d: 15 / 13, label: "{1, 7/5, 15/13}",  color: "#bae6fd", duration: "2.8s", orbit: "40s" },
 
         // Row 3: Ice White & Slate Spectrum (Contrast / Foundation / Balance)
-        { R: 1, p: 3, q: 4,  d: 8 / 13,  label: "{1, 3/4, 8/13}",   color: "#cbd5e1", duration: "2.2s", orbit: "34s", pulse: "7.2s" },
-        { R: 1, p: 3, q: 4,  d: 5 / 13,  label: "{1, 3/4, 5/13}",   color: "#e2e8f0", duration: "2.2s", orbit: "42s", pulse: "6.6s" },
-        { R: 1, p: 3, q: 4,  d: 7 / 13,  label: "{1, 3/4, 7/13}",   color: "#94a3b8", duration: "2.2s", orbit: "32s", pulse: "7.8s" },
-        { R: 1, p: 3, q: 4,  d: 30 / 13, label: "{1, 3/4, 30/13}",  color: "#f8fafc", duration: "2.2s", orbit: "54s", pulse: "6.4s" }
+        { R: 1, p: 3, q: 4,  d: 8 / 13,  label: "{1, 3/4, 8/13}",   color: "#cbd5e1", duration: "2.2s", orbit: "34s" },
+        { R: 1, p: 3, q: 4,  d: 5 / 13,  label: "{1, 3/4, 5/13}",   color: "#e2e8f0", duration: "2.2s", orbit: "42s" },
+        { R: 1, p: 3, q: 4,  d: 7 / 13,  label: "{1, 3/4, 7/13}",   color: "#94a3b8", duration: "2.2s", orbit: "32s" },
+        { R: 1, p: 3, q: 4,  d: 30 / 13, label: "{1, 3/4, 30/13}",  color: "#f8fafc", duration: "2.2s", orbit: "54s" }
       ];
 
       const ns = "http://www.w3.org/2000/svg";
@@ -500,18 +479,7 @@
         basePath.style.setProperty("--draw-delay", drawDelay + "ms");
         basePath.style.setProperty("--draw-duration", item.duration);
 
-        // Layer 2: Continuous active tracing ribbon (loops forever along the path)
-        const pulsePath = document.createElementNS(ns, "path");
-        pulsePath.setAttribute("class", "pulse-path");
-        pulsePath.setAttribute("d", dString);
-        pulsePath.style.setProperty("--shape-color", item.color);
-        pulsePath.style.setProperty("--draw-duration", item.duration);
-        pulsePath.style.setProperty("--draw-delay", drawDelay + "ms");
-        pulsePath.style.setProperty("--pulse-delay", (drawDelay + drawDuration) + "ms");
-        pulsePath.style.setProperty("--pulse-speed", item.pulse);
-
         svg.appendChild(basePath);
-        svg.appendChild(pulsePath);
 
         const paramLabel = document.createElement("span");
         paramLabel.className = "shape-param";
@@ -525,12 +493,7 @@
 
         // Measure the exact path length so the dash pattern closes cleanly.
         const pathLength = basePath.getTotalLength();
-        const ribbonLength = pathLength * 0.28;
-        const ribbonGap = pathLength - ribbonLength;
         basePath.style.setProperty("--path-len", pathLength);
-        pulsePath.style.setProperty("--path-len", pathLength);
-        pulsePath.style.setProperty("--ribbon-len", ribbonLength);
-        pulsePath.style.setProperty("--ribbon-gap", ribbonGap);
 
         basePath.addEventListener("animationend", function (e) {
           if (e.animationName === "trace-initial") {
