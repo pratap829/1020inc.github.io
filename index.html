@@ -229,7 +229,7 @@
       stroke-linecap: round;
       stroke-linejoin: round;
       vector-effect: non-scaling-stroke;
-      stroke-dasharray: 1;
+      stroke-dasharray: var(--path-length, 1);
       stroke-dashoffset: 0;
       opacity: 0.92;
     }
@@ -347,7 +347,8 @@
       }
 
       .shape-cell .base-path.is-tracing {
-        stroke-dashoffset: 1;
+        stroke-dasharray: var(--path-length, 1);
+        stroke-dashoffset: var(--path-length, 1);
         opacity: 0;
         animation: trace-form var(--draw-duration, 2.6s) cubic-bezier(0.22, 1, 0.36, 1) forwards;
         animation-delay: var(--draw-delay, 100ms);
@@ -360,7 +361,7 @@
       }
 
       @keyframes trace-form {
-        0% { stroke-dashoffset: 1; opacity: 0; }
+        0% { stroke-dashoffset: var(--path-length, 1); opacity: 0; }
         12% { opacity: 1; }
         100% { stroke-dashoffset: 0; opacity: 0.92; }
       }
@@ -484,8 +485,9 @@
 
         const path = document.createElementNS(ns, "path");
         path.setAttribute("class", "base-path");
-        path.setAttribute("pathLength", "1");
         path.setAttribute("d", dString);
+        // Use the browser's measured length to draw the entire path reliably.
+        path.style.setProperty("--path-length", path.getTotalLength().toString());
         path.style.setProperty("--shape-color", item.color);
         path.style.setProperty("--draw-delay", (index * 60 + 50) + "ms");
         path.style.setProperty("--draw-duration", item.duration);
