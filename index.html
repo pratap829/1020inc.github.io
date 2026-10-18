@@ -221,7 +221,7 @@
       will-change: transform;
     }
 
-    /* Razor-sharp vector lines with smooth draw-in */
+    /* Razor-sharp vector lines with controlled draw-in class */
     .shape-cell path {
       fill: none;
       stroke: var(--shape-color, var(--electric-blue));
@@ -232,7 +232,10 @@
       stroke-dasharray: 1;
       stroke-dashoffset: 1;
       opacity: 0;
-      animation: trace-form var(--draw-duration, 2.8s) cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    .shape-cell path.is-tracing {
+      animation: trace-form var(--draw-duration, 2.6s) cubic-bezier(0.22, 1, 0.36, 1) forwards;
       animation-delay: var(--draw-delay, 100ms);
     }
 
@@ -411,7 +414,7 @@
     </footer>
   </main>
   <script>
-    // Official 1020 Inc. Color Discipline with smooth, reliable pathLength="1" stroke drawing.
+    // Official 1020 Inc. Color Discipline with explicit class-based animation triggering.
     (function () {
       const grid = document.getElementById("hypotrochoid-grid");
       if (!grid) return;
@@ -468,7 +471,7 @@
         path.setAttribute("pathLength", "1");
         path.setAttribute("d", dString);
         path.style.setProperty("--shape-color", item.color);
-        path.style.setProperty("--draw-delay", (index * 80 + 100) + "ms");
+        path.style.setProperty("--draw-delay", (index * 70 + 80) + "ms");
         path.style.setProperty("--draw-duration", item.duration);
 
         svg.appendChild(path);
@@ -482,6 +485,11 @@
         cell.appendChild(svg);
         cell.appendChild(paramLabel);
         grid.appendChild(cell);
+
+        // Force browser layout calculation before adding the tracing class
+        requestAnimationFrame(() => {
+          path.classList.add("is-tracing");
+        });
       });
     })();
   </script>
