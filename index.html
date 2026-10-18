@@ -118,50 +118,68 @@
       text-wrap: pretty;
     }
 
-    .visual {
-      height: 125px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin: 36px 0 38px;
+    .shape-field {
+      width: min(100%, 700px);
+      margin: 38px auto 42px;
+      padding: 22px 18px 18px;
+      border: 1px solid #c4b5fd18;
+      border-radius: 24px;
+      background: linear-gradient(145deg, #ffffff05, #a78bfa08 55%, #ffffff02);
+      box-shadow: inset 0 1px 0 #ffffff08, 0 24px 80px #00000018;
       position: relative;
+      overflow: hidden;
     }
 
-    .orbit {
-      width: 112px;
-      height: 112px;
-      border: 1px solid #a78bfa55;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      position: relative;
-      box-shadow: 0 0 65px #8b5cf61c;
-    }
-
-    .orbit::before,
-    .orbit::after {
+    .shape-field::before {
       content: "";
       position: absolute;
-      border: 1px solid #a78bfa35;
-      border-radius: 50%;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(ellipse at 50% 45%, #8b5cf610, transparent 68%);
     }
 
-    .orbit::before {
-      inset: 12px -12px;
-      transform: rotate(35deg);
+    .shape-grid {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
     }
 
-    .orbit::after {
-      inset: -12px 12px;
-      transform: rotate(-35deg);
+    .shape-cell {
+      min-width: 0;
+      aspect-ratio: 1 / 1;
+      display: grid;
+      place-items: center;
+      opacity: .84;
+      transition: opacity .35s ease, transform .35s ease;
     }
 
-    .core {
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background: #c4b5fd;
-      box-shadow: 0 0 22px #a78bfa, 0 0 55px #8b5cf6;
+    .shape-cell:hover { opacity: 1; transform: translateY(-2px); }
+
+    .shape-cell svg {
+      display: block;
+      width: 100%;
+      max-width: 132px;
+      overflow: visible;
+      filter: drop-shadow(0 0 8px #a78bfa10);
+    }
+
+    .shape-cell path {
+      fill: none;
+      stroke: var(--shape-color, #a78bfa);
+      stroke-width: 1.15;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .shape-caption {
+      color: #8d87a7;
+      font-size: 9px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      margin: 13px 0 0;
+      position: relative;
     }
 
     .status {
@@ -208,16 +226,19 @@
       .eyebrow { letter-spacing: 0.17em; margin-bottom: 22px; }
       h1 { letter-spacing: -0.045em; margin-bottom: 22px; }
       .intro { line-height: 1.8; }
-      .visual { margin: 30px 0 34px; }
+      .shape-field { margin: 30px auto 34px; padding: 12px 8px 13px; border-radius: 18px; }
+      .shape-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2px; }
+      .shape-caption { font-size: 8px; letter-spacing: .13em; }
       .status { font-size: 9px; letter-spacing: 0.09em; padding: 11px 14px; }
       footer { margin-top: 48px; font-size: 9px; }
     }
 
     @media (prefers-reduced-motion: no-preference) {
-      .orbit { animation: breathe 7s ease-in-out infinite; }
-      @keyframes breathe {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.045); }
+      .shape-cell:nth-child(3n + 1) svg { animation: drift 9s ease-in-out infinite; }
+      .shape-cell:nth-child(3n + 2) svg { animation: drift 11s ease-in-out -3s infinite; }
+      @keyframes drift {
+        0%, 100% { transform: rotate(-2deg) scale(.98); }
+        50% { transform: rotate(2deg) scale(1.02); }
       }
     }
   </style>
@@ -245,9 +266,10 @@
       Something meaningful takes time.
     </p>
 
-    <div class="visual" aria-hidden="true">
-      <div class="orbit"><div class="core"></div></div>
-    </div>
+    <section class="shape-field" aria-label="Mathematical curve studies">
+      <div class="shape-grid" id="hypotrochoid-grid" aria-hidden="true"></div>
+      <p class="shape-caption">Patterns in motion · Possibilities taking form</p>
+    </section>
 
     <div class="status">
       <span class="dot" aria-hidden="true"></span>
@@ -256,5 +278,56 @@
 
     <footer>1020 INC. &nbsp;·&nbsp; THINK BEYOND THE OBVIOUS</footer>
   </main>
+  <script>
+    // Lightweight, dependency-free hypotrochoid curves inspired by mathematical plotting.
+    (function () {
+      const grid = document.getElementById("hypotrochoid-grid");
+      if (!grid) return;
+      const designs = [
+        { R: 7, r: 1, d: 1, color: "#a78bfa" },
+        { R: 7, r: 1, d: 5, color: "#b8a0ff" },
+        { R: 7, r: 1, d: 7, color: "#8f6df0" },
+        { R: 7, r: 1, d: 15, color: "#c4b5fd" },
+        { R: 7, r: 5, d: 1, color: "#d6a0c5" },
+        { R: 7, r: 5, d: 5, color: "#c68bb5" },
+        { R: 7, r: 5, d: 7, color: "#df9bbf" },
+        { R: 7, r: 5, d: 15, color: "#b87caa" },
+        { R: 3, r: 4, d: 8, color: "#8bc6a4" },
+        { R: 3, r: 4, d: 5, color: "#8bc6a4" },
+        { R: 3, r: 4, d: 7, color: "#75b895" },
+        { R: 3, r: 4, d: 30, color: "#a3d4b5" }
+      ];
+      const ns = "http://www.w3.org/2000/svg";
+      designs.forEach((item, index) => {
+        const svg = document.createElementNS(ns, "svg");
+        svg.setAttribute("viewBox", "-46 -46 92 92");
+        svg.setAttribute("role", "img");
+        svg.setAttribute("aria-label", "Abstract mathematical curve " + (index + 1));
+        const path = document.createElementNS(ns, "path");
+        const { R, r, d } = item;
+        const period = 2 * Math.PI * r / gcd(Math.round(R), Math.round(r));
+        const steps = 1500;
+        let data = "";
+        for (let i = 0; i <= steps; i++) {
+          const t = period * i / steps;
+          const x = (R - r) * Math.cos(t) + d * Math.cos(((R - r) / r) * t);
+          const y = (R - r) * Math.sin(t) - d * Math.sin(((R - r) / r) * t);
+          const scale = 34 / Math.max(1, R + Math.abs(d));
+          data += (i ? "L" : "M") + (x * scale).toFixed(3) + " " + (y * scale).toFixed(3) + " ";
+        }
+        path.setAttribute("d", data);
+        path.style.setProperty("--shape-color", item.color);
+        svg.appendChild(path);
+        const cell = document.createElement("div");
+        cell.className = "shape-cell";
+        cell.appendChild(svg);
+        grid.appendChild(cell);
+      });
+      function gcd(a, b) {
+        while (b) { const next = a % b; a = b; b = next; }
+        return Math.abs(a) || 1;
+      }
+    })();
+  </script>
 </body>
 </html>
