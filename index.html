@@ -230,13 +230,15 @@
       stroke-linejoin: round;
       vector-effect: non-scaling-stroke;
       stroke-dasharray: 1;
-      stroke-dashoffset: 1;
-      opacity: 0;
+      stroke-dashoffset: 0;
+      opacity: 0.92;
     }
 
-    .shape-cell path.is-tracing {
-      animation: trace-form var(--draw-duration, 2.6s) cubic-bezier(0.22, 1, 0.36, 1) forwards;
-      animation-delay: var(--draw-delay, 100ms);
+    .shape-cell .trace-highlight {
+      stroke-width: 1.55px;
+      stroke-dasharray: 0.24 0.76;
+      stroke-dashoffset: 1;
+      opacity: 0;
     }
 
     .shape-param {
@@ -343,18 +345,28 @@
         animation: continuous-orbit var(--orbit-speed, 42s) linear infinite;
       }
 
+      .shape-cell .base-path.is-tracing {
+        stroke-dashoffset: 1;
+        opacity: 0;
+        animation: trace-form var(--draw-duration, 2.6s) cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        animation-delay: var(--draw-delay, 100ms);
+      }
+
+      .shape-cell .trace-highlight.is-active {
+        opacity: 0.9;
+        filter: drop-shadow(0 0 2px var(--shape-color));
+        animation: trace-flow var(--trace-duration, 14s) linear infinite;
+      }
+
       @keyframes trace-form {
-        0% {
-          stroke-dashoffset: 1;
-          opacity: 0;
-        }
-        12% {
-          opacity: 1;
-        }
-        100% {
-          stroke-dashoffset: 0;
-          opacity: 0.92;
-        }
+        0% { stroke-dashoffset: 1; opacity: 0; }
+        12% { opacity: 1; }
+        100% { stroke-dashoffset: 0; opacity: 0.92; }
+      }
+
+      @keyframes trace-flow {
+        from { stroke-dashoffset: 1; }
+        to   { stroke-dashoffset: 0; }
       }
 
       @keyframes continuous-orbit {
@@ -390,7 +402,7 @@
 
     <section class="shape-field" aria-label="Constructed Geometry — Hypotrochoid curve studies">
       <div class="theory-header">
-        <p class="theory-kicker">Constructed Geometry &nbsp;·&nbsp; Curves Traced Inside a Rolling Circle</p>
+        <p class="theory-kicker">Constructed Geometry &nbsp;·&nbsp; Parametric Curves in Motion</p>
         <p class="theory-quote">“Geometry is just poetry written in motion.”</p>
       </div>
 
@@ -468,13 +480,22 @@
         const dString = data.trim() + " Z";
 
         const path = document.createElementNS(ns, "path");
+        path.setAttribute("class", "base-path");
         path.setAttribute("pathLength", "1");
         path.setAttribute("d", dString);
         path.style.setProperty("--shape-color", item.color);
         path.style.setProperty("--draw-delay", (index * 60 + 50) + "ms");
         path.style.setProperty("--draw-duration", item.duration);
 
+        const trace = document.createElementNS(ns, "path");
+        trace.setAttribute("class", "trace-highlight");
+        trace.setAttribute("pathLength", "1");
+        trace.setAttribute("d", dString);
+        trace.style.setProperty("--shape-color", item.color);
+        trace.style.setProperty("--trace-duration", "14s");
+
         svg.appendChild(path);
+        svg.appendChild(trace);
 
         const paramLabel = document.createElement("span");
         paramLabel.className = "shape-param";
@@ -486,12 +507,18 @@
         cell.appendChild(paramLabel);
         grid.appendChild(cell);
 
-        // Force browser layout reflow before triggering the trace animation
+        // Start the highlight only after the full curve has finished drawing.
+        path.addEventListener("animationend", function (event) {
+          if (event.animationName === "trace-form") {
+            trace.classList.add("is-active");
+          }
+        }, { once: true });
+
+        // Force browser layout reflow before triggering the draw-in animation.
         void path.offsetWidth;
         path.classList.add("is-tracing");
       });
     })();
-  </script>
   </script>
 </body>
 </html>
