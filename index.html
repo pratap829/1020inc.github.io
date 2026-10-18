@@ -234,12 +234,12 @@
     }
 
     .shape-cell .base-path {
-      stroke-width: 1.1;
-      opacity: 0;
+      stroke-width: 0.9px;
+      opacity: 0.22;
     }
 
     .shape-cell .trace-path {
-      stroke-width: 1.65;
+      stroke-width: 1.75px;
       opacity: 0;
     }
 
@@ -356,12 +356,12 @@
         animation-delay: var(--draw-delay, 120ms);
       }
 
-      /* 3. Continuous glowing pulse ribbon */
+      /* 3. High-intensity dominant glowing trace ribbon */
       .shape-cell .trace-path.is-active {
-        stroke-dasharray: 0.25 0.75;
+        stroke-dasharray: 0.18 0.82;
         stroke-dashoffset: 1;
-        opacity: 0.95;
-        filter: drop-shadow(0 0 6px var(--shape-color));
+        opacity: 1;
+        filter: drop-shadow(0 0 8px var(--shape-color)) drop-shadow(0 0 2px #ffffff);
         animation: trace-flow var(--trace-speed, 14s) linear infinite;
       }
 
@@ -377,9 +377,9 @@
 
       @keyframes trace-initial {
         0%   { stroke-dashoffset: 1; opacity: 0; }
-        15%  { opacity: 0.95; }
-        85%  { opacity: 0.95; }
-        100% { stroke-dashoffset: 0; opacity: 0.85; }
+        15%  { opacity: 0.85; }
+        85%  { opacity: 0.85; }
+        100% { stroke-dashoffset: 0; opacity: 0.22; }
       }
     }
   </style>
@@ -517,7 +517,7 @@
         cell.appendChild(paramLabel);
         grid.appendChild(cell);
 
-        // Activate the glowing pulse trail once the base path finishes drawing
+        // Activate the dominant glowing pulse trail once the base path finishes drawing
         basePath.addEventListener("animationend", function (e) {
           if (e.animationName === "trace-initial") {
             basePath.style.strokeDasharray = "none";
