@@ -236,8 +236,8 @@
     @media (prefers-reduced-motion: no-preference) {
       /* Staggered stroke draw-in entrance ("Taking Form") */
       .shape-cell path {
-        stroke-dasharray: 1;
-        stroke-dashoffset: 1;
+        stroke-dasharray: var(--path-len, 2500);
+        stroke-dashoffset: var(--path-len, 2500);
         opacity: 0;
         animation: trace-form var(--draw-duration, 2.8s) cubic-bezier(0.22, 1, 0.36, 1) forwards;
         animation-delay: calc(var(--i, 0) * 110ms + 150ms);
@@ -245,7 +245,7 @@
 
       @keyframes trace-form {
         0% {
-          stroke-dashoffset: 1;
+          stroke-dashoffset: var(--path-len, 2500);
           opacity: 0;
         }
         12% {
@@ -303,29 +303,29 @@
     <footer>1020 INC. &nbsp;·&nbsp; THINK BEYOND THE OBVIOUS</footer>
   </main>
   <script>
-    // Exact hypotrochoid curves {R, r, d} from @mathemetica with staggered draw-in.
+    // Exact hypotrochoid curves {R, r = p/q, d} from @mathemetica with complete draw-in.
     (function () {
       const grid = document.getElementById("hypotrochoid-grid");
       if (!grid) return;
 
       const designs = [
-        // Row 1: {1, 7/13, d/13} -> scaled by 13 so R, r, d are exact integers
-        { R: 13, r: 7, d: 1,   color: "#a78bfa", duration: "3.2s" },
-        { R: 13, r: 7, d: 5,   color: "#b8a0ff", duration: "3.2s" },
-        { R: 13, r: 7, d: 7,   color: "#8f6df0", duration: "3.2s" },
-        { R: 13, r: 7, d: 15,  color: "#c4b5fd", duration: "3.2s" },
+        // Row 1: R = 1, r = 7/13 (7 full revolutions), d = {1, 5, 7, 15}/13
+        { R: 1, p: 7, q: 13, d: 1 / 13,  color: "#a78bfa", duration: "3.2s" },
+        { R: 1, p: 7, q: 13, d: 5 / 13,  color: "#b8a0ff", duration: "3.2s" },
+        { R: 1, p: 7, q: 13, d: 7 / 13,  color: "#8f6df0", duration: "3.2s" },
+        { R: 1, p: 7, q: 13, d: 15 / 13, color: "#c4b5fd", duration: "3.2s" },
 
-        // Row 2: {1, 7/5, d/13} -> scaled by 65 (5 * 13)
-        { R: 65, r: 91, d: 5,  color: "#d6a0c5", duration: "3.0s" },
-        { R: 65, r: 91, d: 25, color: "#c68bb5", duration: "3.0s" },
-        { R: 65, r: 91, d: 35, color: "#df9bbf", duration: "3.0s" },
-        { R: 65, r: 91, d: 75, color: "#b87caa", duration: "3.0s" },
+        // Row 2: R = 1, r = 7/5 (7 full revolutions), d = {1, 5, 7, 15}/13
+        { R: 1, p: 7, q: 5,  d: 1 / 13,  color: "#d6a0c5", duration: "3.0s" },
+        { R: 1, p: 7, q: 5,  d: 5 / 13,  color: "#c68bb5", duration: "3.0s" },
+        { R: 1, p: 7, q: 5,  d: 7 / 13,  color: "#df9bbf", duration: "3.0s" },
+        { R: 1, p: 7, q: 5,  d: 15 / 13, color: "#b87caa", duration: "3.0s" },
 
-        // Row 3: {1, 3/4, d/13} -> scaled by 52 (4 * 13)
-        { R: 52, r: 39, d: 32,  color: "#8bc6a4", duration: "2.3s" },
-        { R: 52, r: 39, d: 20,  color: "#8bc6a4", duration: "2.3s" },
-        { R: 52, r: 39, d: 28,  color: "#75b895", duration: "2.3s" },
-        { R: 52, r: 39, d: 120, color: "#a3d4b5", duration: "2.3s" }
+        // Row 3: R = 1, r = 3/4 (3 full revolutions), d = {8, 5, 7, 30}/13
+        { R: 1, p: 3, q: 4,  d: 8 / 13,  color: "#8bc6a4", duration: "2.3s" },
+        { R: 1, p: 3, q: 4,  d: 5 / 13,  color: "#8bc6a4", duration: "2.3s" },
+        { R: 1, p: 3, q: 4,  d: 7 / 13,  color: "#75b895", duration: "2.3s" },
+        { R: 1, p: 3, q: 4,  d: 30 / 13, color: "#a3d4b5", duration: "2.3s" }
       ];
 
       const ns = "http://www.w3.org/2000/svg";
@@ -337,22 +337,24 @@
         svg.setAttribute("aria-label", "Abstract mathematical curve " + (index + 1));
 
         const path = document.createElementNS(ns, "path");
-        const { R, r, d } = item;
-        const period = 2 * Math.PI * r / gcd(Math.round(R), Math.round(r));
-        const steps = 1500;
-        const maxAmplitude = Math.abs(R - r) + Math.abs(d);
-        const scale = 34 / Math.max(1, maxAmplitude);
+        const r = item.p / item.q;
+        const diff = item.R - r;
+        const ratio = diff / r;
+        // Period for r = p/q inside R = 1 is exactly 2 * PI * p revolutions
+        const period = 2 * Math.PI * item.p;
+        const steps = item.p * 240;
+        const maxAmplitude = Math.abs(diff) + Math.abs(item.d);
+        const scale = 34 / (maxAmplitude || 1);
 
         let data = "";
         for (let i = 0; i <= steps; i++) {
-          const t = period * i / steps;
-          const x = (R - r) * Math.cos(t) + d * Math.cos(((R - r) / r) * t);
-          const y = (R - r) * Math.sin(t) - d * Math.sin(((R - r) / r) * t);
+          const t = (period * i) / steps;
+          const x = diff * Math.cos(t) + item.d * Math.cos(ratio * t);
+          const y = diff * Math.sin(t) - item.d * Math.sin(ratio * t);
           data += (i ? "L" : "M") + (x * scale).toFixed(3) + " " + (y * scale).toFixed(3) + " ";
         }
 
-        path.setAttribute("d", data.trim());
-        path.setAttribute("pathLength", "1");
+        path.setAttribute("d", data.trim() + " Z");
         path.style.setProperty("--shape-color", item.color);
         path.style.setProperty("--i", index);
         path.style.setProperty("--draw-duration", item.duration);
@@ -362,12 +364,20 @@
         cell.className = "shape-cell";
         cell.appendChild(svg);
         grid.appendChild(cell);
-      });
 
-      function gcd(a, b) {
-        while (b) { const next = a % b; a = b; b = next; }
-        return Math.abs(a) || 1;
-      }
+        // Measure true rendered length after DOM insertion and multiply by 1.5x
+        // to compensate for vector-effect: non-scaling-stroke scaling in Chrome/Edge
+        const rawLength = Math.ceil(path.getTotalLength() * 1.5);
+        path.style.setProperty("--path-len", rawLength);
+
+        // Remove dash array completely once the draw-in finishes so no gap can ever remain
+        path.addEventListener("animationend", function (e) {
+          if (e.animationName === "trace-form") {
+            path.style.strokeDasharray = "none";
+            path.style.strokeDashoffset = "0";
+          }
+        }, { once: true });
+      });
     })();
   </script>
 </body>
